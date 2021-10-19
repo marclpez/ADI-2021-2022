@@ -11,24 +11,6 @@ users.set("adi", {login:"adi", password:"adi"})
 
 var secret = '123456'
 
-//En una app con autentificación basada en Token, el login genera y devuelve el token
-app.post('/miapi/login', function(pet, resp){
-    var loginBuscado = pet.body.login
-    var passwordBuscado = pet.body.password
-    var user = users.get(loginBuscado)
-    if (user && user.password==passwordBuscado) {
-        var payload = {
-          login: loginBuscado,
-          exp: moment().add(7, 'days').valueOf()
-        }
-        var token = jwt.encode(payload, secret)
-        resp.send({token: token, mensaje:"OK"})
-    }
-    else {
-        resp.send(403).end()
-    }
-})
-
 //Middleware: lo pondremos ANTES de procesar cualquier petición que requiera autentificación
 function chequeaJWT(pet, resp, next) {
 
@@ -53,7 +35,7 @@ function getTokenFromAuthHeader(pet) {
         //Parte el string por el espacio. Si está, devolverá un array de 2
         //la 2ª pos será lo que hay detrás de "Bearer"
         var campos = cabecera.split(' ')
-        if (campos.length>1 && cabecera.startsWith('Bearer')) {
+        if (campos.length > 1 && cabecera.startsWith('Bearer')) {
             return campos[1] 
         }
     }
@@ -68,6 +50,24 @@ app.get('/', function(pet,resp) {
    resp.status(200);
    resp.send('Hola soy Express'); 
 });
+
+//En una app con autentificación basada en Token, el login genera y devuelve el token
+app.post('/miapi/login', function(pet, resp){
+    var loginBuscado = pet.body.login
+    var passwordBuscado = pet.body.password
+    var user = users.get(loginBuscado)
+    if (user && user.password==passwordBuscado) {
+        var payload = {
+          login: loginBuscado,
+          exp: moment().add(7, 'days').valueOf()
+        }
+        var token = jwt.encode(payload, secret)
+        resp.send({token: token, mensaje:"OK"})
+    }
+    else {
+        resp.send(403).end()
+    }
+})
 
 app.get('/miapi/protegido1', chequeaJWT, function(pet, resp){
     var token = getTokenFromAuthHeader(pet)
