@@ -78,6 +78,15 @@ app.get('/miapi/protegido1', chequeaJWT, function(pet, resp){
     resp.send({mensaje: "hola " + login, dato: "recurso  protegido 1"})
 })
 
+app.post('/twapi/tweets', chequeaJWT, function(pet, resp){
+    var token = getTokenFromAuthHeader(pet)
+    var payload = token.split(".")[1]
+    var payloadDecoded = Buffer.from(payload, "Base64").toString() //decodificamos el payload
+    
+    resp.status(200);
+
+})
+
 
 //Este método delega en el server.listen "nativo" de Node
 app.listen(3000, function () {
