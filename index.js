@@ -1,9 +1,14 @@
+'use strict'
 //Cargamos el módulo express
 var jwt = require('jwt-simple')
 var moment = require('moment')
 var express = require('express');
 var app = express();
+
 app.use(express.json())
+
+const mongoose = require('./database');
+const Tweet = require('./models/tweet')
 
 var users = new Map()
 users.set("pepe", {login:"pepe", password:"pepe"})
@@ -45,7 +50,7 @@ function getTokenFromAuthHeader(pet) {
 
 
 //En Express asociamos un método HTTP y una URL con un callback a ejecutar
-app.get('/', function(pet,resp) {
+app.get('/', function(pet, resp) {
    //Tenemos una serie de primitivas para devolver la respuesta HTTP
    resp.status(200);
    resp.send('Hola soy Express'); 
@@ -78,14 +83,22 @@ app.get('/miapi/protegido1', chequeaJWT, function(pet, resp){
     resp.send({mensaje: "hola " + login, dato: "recurso  protegido 1"})
 })
 
-app.post('/twapi/tweets', chequeaJWT, function(pet, resp){
-    var token = getTokenFromAuthHeader(pet)
-    var payload = token.split(".")[1]
-    var payloadDecoded = Buffer.from(payload, "Base64").toString() //decodificamos el payload
-    
-    resp.status(200);
-
-})
+app.get('/twapi/tweets', (req, res) => {
+    Tweet.find((err, lista_tweets) => {
+        if(err){
+            res.json({
+                msj: 'No se pudieron listar los tweets', 
+                err
+            })
+        }
+        else{
+            res.json({
+                msj: 'Las personas se listaron correctamente',
+                lista_tweets
+            })
+        }
+    })
+});
 
 
 //Este método delega en el server.listen "nativo" de Node
