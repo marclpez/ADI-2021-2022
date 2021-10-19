@@ -1,0 +1,19 @@
+{
+  "name": "adi-2021-2022",
+  "version": "1.0.0",
+  "description": "Proyecto ADI curso 2021-2022",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/marclpez/ADI-2021-2022.git"
+  },
+  "author": "Marc López Espinosa y Javier García Lillo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/marclpez/ADI-2021-2022/issues"
+  },
+  "homepage": "https://github.com/marclpez/ADI-2021-2022#readme"
+}
