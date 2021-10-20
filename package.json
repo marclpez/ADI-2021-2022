@@ -17,9 +17,11 @@
   },
   "homepage": "https://github.com/marclpez/ADI-2021-2022#readme",
   "dependencies": {
+    "bcrypt": "^5.0.1",
     "express": "^4.17.1",
     "jwt-simple": "^0.5.6",
     "moment": "^2.29.1",
-    "mongoose": "^5.8.5"
+    "mongoose": "^5.8.5",
+    "nodemon": "^2.0.14"
   }
 }

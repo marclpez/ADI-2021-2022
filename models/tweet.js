@@ -1,10 +1,13 @@
 'use strict'
 
-const mongoose = require('mongoose');
+var mongoose = require('mongoose');
+var Schema = mongoose.Schema;
+const User = require('../models/user')
 
-const tweetSchema = new mongoose.Schema({
+var tweetSchema = new Schema({
     mensaje: String,
-    likes: Number
+    likes: Number,
+    autor: {type: Schema.ObjectId, ref: 'User'}
 })
                             //nombreVariable, nombreSchema, nombreTablaMongoDB
 module.exports = mongoose.model('Tweet', tweetSchema, 'tweets');
