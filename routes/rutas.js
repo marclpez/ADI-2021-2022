@@ -1,12 +1,19 @@
+'use strict'
+
 const express = require('express')
 const router = express.Router();
 var jwt = require('jwt-simple')
+var moment = require('moment')
 const mongoose = require('mongoose')
+
+//MODELOS
 const Tweet = require('../models/tweet')
 const User = require('../models/user')
+const Like = require('../models/like')
+const Mensaje = require('../models/mensajes')
 
+//MIDDLEWARES
 var secret = '123456'
-
 //Middleware: lo pondremos ANTES de procesar cualquier petición que requiera autentificación
 function chequeaJWT(pet, resp, next) {
 
@@ -46,32 +53,40 @@ router.get('/', function(pet, resp) {
  });
  
  //En una app con autentificación basada en Token, el login genera y devuelve el token
-router.post('/miapi/login', function(pet, resp){
-     var loginBuscado = pet.body.login
-     var passwordBuscado = pet.body.password
-     var user = users.get(loginBuscado)
-     if (user && user.password==passwordBuscado) {
-         var payload = {
-           login: loginBuscado,
-           exp: moment().add(7, 'days').valueOf()
-         }
-         var token = jwt.encode(payload, secret)
-         resp.send({token: token, mensaje:"OK"})
-     }
-     else {
-         resp.send(403).end()
-     }
+router.post('/twapi/login', function(pet, resp){
+
+    User.findOne({ nickname: pet.body.nickname }, function (err, user){
+        console.log(user)
+        if(err || user === null){
+            console.log(err)
+            resp.send({mensaje:"Credenciales incorrectas"})
+            resp.status(403)
+        }
+        else{
+            if(user.password == pet.body.password){
+                var payload = {
+                    nickname: pet.body.nickname,
+                    exp: moment().add(7, 'days').valueOf()
+                  }
+                var token = jwt.encode(payload, secret)
+                resp.send({token: token, mensaje:"Login realizado"})
+            }
+        }
+    })
  })
- 
-router.get('/miapi/protegido1', chequeaJWT, function(pet, resp){
+
+//EJEMPLO RUTA PROTEGIDA
+router.get('/twapi/protegido', chequeaJWT, function(pet, resp){
      var token = getTokenFromAuthHeader(pet)
      var payload = token.split(".")[1]
      var payloadDecoded = Buffer.from(payload, "Base64").toString() //decodificamos el payload
      var payloadDecodedtoJSON = JSON.parse(payloadDecoded); //lo pasamos a jSON
-     var login = payloadDecodedtoJSON.login //accedemos al campo del json que queremos
-     resp.send({mensaje: "hola " + login, dato: "recurso  protegido 1"})
- })
- 
+     console.log(payloadDecodedtoJSON)
+     var nickname = payloadDecodedtoJSON.nickname //accedemos al campo del json que queremos
+     resp.send({mensaje: "hola " + nickname, dato: "recurso  protegido"})
+})
+///////////
+
 router.get('/twapi/tweets', (req, res) => {
     Tweet.find({}, function (err, tweets) {
         User.populate(tweets, { path: "autor" }, function (err, tweets) { //el populate es para mostrar todos los campos del autor y no solo su id
@@ -80,24 +95,24 @@ router.get('/twapi/tweets', (req, res) => {
       });
  });
 
- router.get('/twapi/usuarios', (req, res) => {
-    User.find((err, lista_tweets) => {
+router.get('/twapi/likes', (req, res) => {
+    Like.find((err, lista_likes) => {
         if(err){
             res.json({
-                msj: 'No se pudieron listar los tweets', 
+                msj: 'No se pudieron listar los likes', 
                 err
             })
         }
         else{
             res.json({
-                msj: 'Las personas se listaron correctamente',
-                lista_tweets
+                msj: 'Los likes se listaron correctamente',
+                lista_likes
             })
         }
     })
 });
 
-router.post('/twapi/nuevoUsuario', (req, res) => {
+router.post('/twapi/usuarios', (req, res) => {
     var nuevoUsuario = new User({
         nickname: req.body.nickname,
         password: req.body.password,
@@ -113,10 +128,9 @@ router.post('/twapi/nuevoUsuario', (req, res) => {
       });
 })
 
-router.post('/twapi/nuevoTweet', (req, res) => {
+router.post('/twapi/tweets', (req, res) => {
     var nuevoTweet = new Tweet({
         mensaje: req.body.mensaje,
-        likes: req.body.likes,
         autor: '6170897a2696332be713c5c8' //si se le pasa un id de un autor que no existe falla, oleeee
     })
     console.log(nuevoTweet)
@@ -126,6 +140,21 @@ router.post('/twapi/nuevoTweet', (req, res) => {
             console.log(String(err))
         }
         res.send("Guardado tweet")
+      });
+})
+
+router.post('/twapi/likes', (req, res) => {
+    var nuevoLike = new Like({
+        usuario: '6170897a2696332be713c5c8',
+        tweet: '617089a3d237432c36981ceb'
+    })
+    console.log(nuevoLike)
+
+    nuevoLike.save(function (err) {
+        if (err){
+            console.log(String(err))
+        }
+        res.send("Guardado like")
       });
 })
 

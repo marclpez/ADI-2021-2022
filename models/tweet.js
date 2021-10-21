@@ -6,7 +6,6 @@ const User = require('../models/user')
 
 var tweetSchema = new Schema({
     mensaje: String,
-    likes: Number,
     autor: {type: Schema.ObjectId, ref: 'User'}
 })
                             //nombreVariable, nombreSchema, nombreTablaMongoDB
