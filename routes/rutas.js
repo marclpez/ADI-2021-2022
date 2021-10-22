@@ -77,14 +77,26 @@ router.get('/tweetsDestacados', function(req, res) {
 }); //TODO
 
 router.get('/tweets', function(req, res) {
-    Tweet.find({}, function (err, lista_tweets) {
+    const options = {
+        limit: req.query.limit || 10,
+        page: req.query.page || 1,
+    }
+
+    Tweet.paginate({}, options, function (err, lista_tweets) {
         if(err) {
             return res.status(500).send({mensaje: 'Error al realizar la petición'})
         }
         if(!lista_tweets){
             return res.status(404).send({mensaje: 'No hay tweets'})
         }
-        User.populate(lista_tweets, { path: "autor" }, function (err, lista_tweets) { //el populate es para mostrar todos los campos del autor y no solo su id
+        if(lista_tweets.hasPrevPage){
+            lista_tweets.prevPage = 'http://localhost:3000/twapi/tweets?limit=' + options.limit +'&page=' + (options.page - 1)
+        }
+        if(lista_tweets.hasNextPage){
+            lista_tweets.nextPage = 'http://localhost:3000/twapi/tweets?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
+        }
+        
+        User.populate(lista_tweets, { path: "autor" }, function (err, lista_tweets) { //el populate es para mostrar todos los campos del autor y no solo su id  
           res.status(200).send(lista_tweets);
         });
       });
