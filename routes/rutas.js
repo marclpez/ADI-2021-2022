@@ -230,9 +230,9 @@ router.get('/usuarios/:id/seguidos', function(req, res){
 
 //////POST
 //En una app con autentificación basada en Token, el login genera y devuelve el token
-router.post('/login', async function(req, res){
+router.post('/login', function(req, res){
 
-    const user = await User.findOne({ nickname: req.body.nickname }, function (err, user){
+    User.findOne({ nickname: req.body.nickname }, function (err, user){
         console.log(user)
         if(err || user === null){
             console.log(err)
