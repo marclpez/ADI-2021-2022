@@ -5,6 +5,7 @@ const router = express.Router();
 var jwt = require('jwt-simple')
 var moment = require('moment')
 const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 
 //MODELOS
 const Tweet = require('../models/tweet')
@@ -50,7 +51,7 @@ function getTokenFromAuthHeader(req) {
 
 
 //EJEMPLO RUTA PROTEGIDA
-router.get('/twapi/protegido', chequeaJWT, function(req, res){
+router.get('/protegido', chequeaJWT, function(req, res){
     var token = getTokenFromAuthHeader(req)
     var payload = token.split(".")[1]
     var payloadDecoded = Buffer.from(payload, "Base64").toString() //decodificamos el payload
@@ -63,7 +64,7 @@ router.get('/twapi/protegido', chequeaJWT, function(req, res){
 
 //////GET
 
-router.get('/twapi/tweetsDestacados', (req, res) => {
+router.get('/tweetsDestacados', function(req, res) {
 
     //DEVUELVE LAS FILAS DE UNA TABLA que coinciden con el filtro
     Like.find().countDocuments({tweet: '61719e2985e48e6c89091f87'}, function (err, count) {
@@ -75,7 +76,7 @@ router.get('/twapi/tweetsDestacados', (req, res) => {
 
 }); //TODO
 
-router.get('/twapi/tweets', (req, res) => {
+router.get('/tweets', function(req, res) {
     Tweet.find({}, function (err, lista_tweets) {
         if(err) {
             return res.status(500).send({mensaje: 'Error al realizar la petición'})
@@ -89,7 +90,7 @@ router.get('/twapi/tweets', (req, res) => {
       });
  });
 
-router.get('/twapi/usuarios', (req, res) => {
+router.get('/usuarios', function(req, res) {
     User.find((err, lista_usuarios) => {
         if(err) {
             return res.status(500).send({mensaje: 'Error al realizar la petición'})
@@ -101,7 +102,7 @@ router.get('/twapi/usuarios', (req, res) => {
     })
 });
 
-router.get('/twapi/usuarios/:id', (req, res) => {
+router.get('/usuarios/:id', function(req, res) {
     User.findOne({ _id: req.params.id }, function (err, user){
         console.log(user)
         if(err) {
@@ -115,7 +116,7 @@ router.get('/twapi/usuarios/:id', (req, res) => {
 })
 
 //Devuelve los tweets del usuario con :id
-router.get('/twapi/usuarios/:id/tweets', (req, res) => {
+router.get('/usuarios/:id/tweets', function(req, res) {
     User.findOne({ _id: req.params.id }, function (err, user){
         console.log(user)
         if(err) {
@@ -125,14 +126,14 @@ router.get('/twapi/usuarios/:id/tweets', (req, res) => {
             return res.status(500).send({mensaje: 'Error al realizar la petición'})
         }
         if(user.tweets.length == 0){
-            res.status(200).send({mensaje: "Este usuario no tiene tweets"})
+            return res.status(200).send({mensaje: "Este usuario no tiene tweets"})
         }
         res.status(200).send(user.tweets);
     })
 })
 
 //Esta ruta es un poco rara ya que siempre vamos a buscar los likes de un determinado tweet no todos los likes de todos los tweets
-router.get('/twapi/likes', (req, res) => {
+router.get('/likes', function(req, res) {
     Like.find((err, lista_likes) => {
         if(err) {
             return res.status(500).send({mensaje: 'Error al realizar la petición'})
@@ -144,7 +145,7 @@ router.get('/twapi/likes', (req, res) => {
     })
 });
 
-router.get('/twapi/likes/:id', (req, res) => {
+router.get('/likes/:id', function(req, res){
     Like.findOne({ _id: req.params.id }, function(err, like){
         if(err) {
             if(like === undefined){
@@ -156,7 +157,7 @@ router.get('/twapi/likes/:id', (req, res) => {
     })
 });
 
-router.get('/twapi/tweets/:id/likes', (req, res) => {
+router.get('/tweets/:id/likes', function(req, res) {
     Tweet.findOne({ _id: req.params.id }, function (err, tweet){
         console.log(tweet)
         if(err) {
@@ -172,7 +173,7 @@ router.get('/twapi/tweets/:id/likes', (req, res) => {
     }) 
 })
 
-router.get('/twapi/seguimientos', (req, res) => {
+router.get('/seguimientos', function(req, res) {
     Seguimiento.find((err, lista_seguimientos) => {
         if(err) {
             return res.status(500).send({mensaje: 'Error al realizar la petición'})
@@ -184,7 +185,7 @@ router.get('/twapi/seguimientos', (req, res) => {
     })
 });
 
-router.get('/twapi/seguimientos/:id', (req, res) => {
+router.get('/seguimientos/:id', function(req, res) {
     Seguimiento.findOne({ _id: req.params.id }, function(err, seguimiento){
         if(err) {
             if(seguimiento === undefined){
@@ -196,7 +197,7 @@ router.get('/twapi/seguimientos/:id', (req, res) => {
     })
 });
 
-router.get('/twapi/usuarios/:id/seguidores', (req, res) => {
+router.get('/usuarios/:id/seguidores', function(req, res) {
     User.findOne({_id: req.params.id}, function(err, user) {
         if(err) {
             if(user === undefined){
@@ -211,7 +212,7 @@ router.get('/twapi/usuarios/:id/seguidores', (req, res) => {
     })
 });
 
-router.get('/twapi/usuarios/:id/seguidos', (req, res) => {
+router.get('/usuarios/:id/seguidos', function(req, res){ 
     User.findOne({_id: req.params.id}, function(err, user) {
         if(err) {
             if(user === undefined){
@@ -229,16 +230,17 @@ router.get('/twapi/usuarios/:id/seguidos', (req, res) => {
 
 //////POST
 //En una app con autentificación basada en Token, el login genera y devuelve el token
-router.post('/twapi/login', function(req, res){
+router.post('/login', async function(req, res){
 
-    User.findOne({ nickname: req.body.nickname }, function (err, user){
+    const user = await User.findOne({ nickname: req.body.nickname }, function (err, user){
         console.log(user)
         if(err || user === null){
             console.log(err)
             res.status(403).send({mensaje:"Credenciales incorrectas"})
         }
         else{
-            if(user.password == req.body.password){
+            const iguales = bcrypt.compareSync(req.body.password, user.password) //recibe el valor sin encriptar y el encriptado
+            if(iguales){
                 var payload = {
                     nickname: req.body.nickname,
                     exp: moment().add(7, 'days').valueOf()
@@ -251,10 +253,12 @@ router.post('/twapi/login', function(req, res){
     })
  })
 
-router.post('/twapi/usuarios', (req, res) => {
+router.post('/usuarios', function(req, res){
+    var passwordEncriptada = bcrypt.hashSync(req.body.password, 10)
+
     var nuevoUsuario = new User({
         nickname: req.body.nickname,
-        password: req.body.password,
+        password: passwordEncriptada,
         email: req.body.email,
         /*tweets: [], SE PODRIA PONER PERO NO ES NECESARIO, LO QUE NO LE PASAMOS LO AÑADE AUTOMATICO GRACIAS A LOS MODELOS
         seguidores: [],
@@ -273,7 +277,7 @@ router.post('/twapi/usuarios', (req, res) => {
     });
 })
 
-router.post('/twapi/tweets', (req, res) => {
+router.post('/tweets', function(req, res) {
     var idAutor = '6171a211b7b1e76e8e789cc8';
 
     User.findOne({ _id: idAutor }, function (err, user){
@@ -307,7 +311,7 @@ router.post('/twapi/tweets', (req, res) => {
     })
 })
 
-router.post('/twapi/likes', (req, res) => {
+router.post('/likes', function(req, res) {
     var idTweet = '617189b173d380645adb3cae';
     var idUsuario = '617185b4771edd627c5bd7d6A';
 
@@ -351,7 +355,7 @@ router.post('/twapi/likes', (req, res) => {
     })
 })
 
-router.post('/twapi/seguimiento', function (req, res) {
+router.post('/seguimiento', function (req, res) {
     var idSeguidor = '617185b4771edd627c5bd7d6';
     var idSeguido = '6171870f4f761a62baca127a';
 
@@ -393,7 +397,6 @@ router.post('/twapi/seguimiento', function (req, res) {
             seguido.save()
         })
     })
-
 })
 
  module.exports = router

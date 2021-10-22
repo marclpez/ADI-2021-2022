@@ -2,7 +2,6 @@
 
 const mongoose = require('mongoose');
 var Schema = mongoose.Schema
-const bcrypt = require('bcrypt')
 const Tweet = require('../models/tweet')
 const Seguimiento = require('../models/seguimiento')
 const Mensaje = require('../models/mensaje')
