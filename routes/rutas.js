@@ -249,6 +249,9 @@ router.post('/login', async function(req, res){
                 res.header('Location', '/twapi/usuarios/' + user._id)
                 res.status(201).send({token: token, mensaje:"Login realizado"})
             }
+            else{
+                res.status(403).send({mensaje:"Credenciales incorrectas"})
+            }
         }
     })
  })
