@@ -5,7 +5,7 @@ var Schema = mongoose.Schema
 const Tweet = require('../models/tweet')
 const Seguimiento = require('../models/seguimiento')
 const Mensaje = require('../models/mensaje')
-
+const mongoosePaginate = require('mongoose-paginate-v2')
 
 const userSchema = new Schema({
     nickname: {type: String, require: true},
@@ -16,6 +16,8 @@ const userSchema = new Schema({
     seguidos: [{type: Schema.ObjectId, ref: 'Seguimiento'}],
     mensajes: [{type: Schema.ObjectId, ref: 'Mensaje'}]
 })
+
+userSchema.plugin(mongoosePaginate)
 
                             //nombreVariable, nombreSchema, nombreTablaMongoDB
 module.exports = mongoose.model('User', userSchema, 'usuarios');

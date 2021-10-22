@@ -103,13 +103,25 @@ router.get('/tweets', function(req, res) {
  });
 
 router.get('/usuarios', function(req, res) {
-    User.find((err, lista_usuarios) => {
+    const options = {
+        limit: req.query.limit || 10,
+        page: req.query.page || 1,
+    }
+
+    User.paginate({}, options, (err, lista_usuarios) => {
         if(err) {
             return res.status(500).send({mensaje: 'Error al realizar la petición'})
         }
         if(!lista_usuarios){
             return res.status(404).send({mensaje: 'No hay usuarios'})
         }
+        if(lista_usuarios.hasPrevPage){
+            lista_usuarios.prevPage = 'http://localhost:3000/twapi/usuarios?limit=' + options.limit +'&page=' + (options.page - 1)
+        }
+        if(lista_usuarios.hasNextPage){
+            lista_usuarios.nextPage = 'http://localhost:3000/twapi/usuarios?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
+        }
+
         res.status(200).send(lista_usuarios)
     })
 });
@@ -146,12 +158,23 @@ router.get('/usuarios/:id/tweets', function(req, res) {
 
 //Esta ruta es un poco rara ya que siempre vamos a buscar los likes de un determinado tweet no todos los likes de todos los tweets
 router.get('/likes', function(req, res) {
-    Like.find((err, lista_likes) => {
+    const options = {
+        limit: req.query.limit || 10,
+        page: req.query.page || 1,
+    }
+    
+    Like.paginate({}, options, (err, lista_likes) => {
         if(err) {
             return res.status(500).send({mensaje: 'Error al realizar la petición'})
         }
         if(!lista_likes){
             return res.status(404).send({mensaje: 'No hay likes'})
+        }
+        if(lista_likes.hasPrevPage){
+            lista_likes.prevPage = 'http://localhost:3000/twapi/likes?limit=' + options.limit +'&page=' + (options.page - 1)
+        }
+        if(lista_likes.hasNextPage){
+            lista_likes.nextPage = 'http://localhost:3000/twapi/likes?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
         }
         res.status(200).send(lista_likes)
     })
@@ -186,12 +209,23 @@ router.get('/tweets/:id/likes', function(req, res) {
 })
 
 router.get('/seguimientos', function(req, res) {
-    Seguimiento.find((err, lista_seguimientos) => {
+    const options = {
+        limit: req.query.limit || 10,
+        page: req.query.page || 1,
+    }
+
+    Seguimiento.paginate({}, options, (err, lista_seguimientos) => {
         if(err) {
             return res.status(500).send({mensaje: 'Error al realizar la petición'})
         }
         if(!lista_seguimientos){
             return res.status(404).send({mensaje: 'No hay seguimientos'})
+        }
+        if(lista_seguimientos.hasPrevPage){
+            lista_seguimientos.prevPage = 'http://localhost:3000/seguimientos/likes?limit=' + options.limit +'&page=' + (options.page - 1)
+        }
+        if(lista_seguimientos.hasNextPage){
+            lista_seguimientos.nextPage = 'http://localhost:3000/seguimientos/likes?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
         }
         res.status(200).send(lista_seguimientos)
     })
