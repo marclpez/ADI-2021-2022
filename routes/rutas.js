@@ -108,12 +108,15 @@ router.get('/tweets', async function(req, res) {
 
     try{
         tweetBuscado = await Tweet.findOne({ _id: req.params.id })
+        if(tweetBuscado === null){
+            return res.status(404).send({mensaje: 'nulo'})
+        }
         console.log(tweetBuscado)
         res.status(200).send(tweetBuscado);
     }
     catch(err){
         if(tweetBuscado === undefined){
-            return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
+            return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
         }
         res.status(500).send({mensaje: 'Error al realizar la petición'}) 
     }
@@ -269,6 +272,42 @@ router.get('/tweets/:id/likes', async function(req, res) {
     }
 })
 
+//Devuelve los tweets a los que un usuario le ha dado like
+router.get('/usuarios/:id/likes', async function(req, res){
+    var usuarioBuscado;
+    const options = {
+        limit: req.query.limit || 3,
+        page: req.query.page || 1,
+    }   
+
+    try{
+        usuarioBuscado = await User.findOne({ _id: req.params.id })
+        console.log(usuarioBuscado)
+        if(usuarioBuscado.likes.length === 0){
+            return res.status(200).send({mensaje: "Este usuario no ha dado like a ningún tweet"})
+        }
+
+        var lista_likes = await Like.paginate({usuario: usuarioBuscado._id}, options)
+        if(lista_likes.docs.length === 0){ //si el array de docs que hay en lista_tweets al paginar esta vacio es que no hay tweets almacenados
+            return res.status(404).send({mensaje: 'No hay tweets'})
+        }
+        if(lista_likes.hasPrevPage){
+            lista_likes.prevPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/likes?limit=' + options.limit +'&page=' + (options.page - 1)
+        }
+        if(lista_likes.hasNextPage){
+            lista_likes.nextPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/likes?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
+        }
+
+        res.status(200).send(lista_likes);
+    }
+    catch(err){
+        if(usuarioBuscado === undefined){
+            return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
+        }
+        res.status(500).send({mensaje: 'Error al realizar la petición'})
+    }
+})
+
 router.get('/seguimientos', async function(req, res) {
     const options = {
         limit: req.query.limit || 10,
@@ -281,10 +320,10 @@ router.get('/seguimientos', async function(req, res) {
             return res.status(404).send({mensaje: 'No hay seguimientos'})
         }
         if(lista_seguimientos.hasPrevPage){
-            lista_seguimientos.prevPage = 'http://localhost:3000/seguimientos/likes?limit=' + options.limit +'&page=' + (options.page - 1)
+            lista_seguimientos.prevPage = 'http://localhost:3000/twapi/seguimientos?limit=' + options.limit +'&page=' + (options.page - 1)
         }
         if(lista_seguimientos.hasNextPage){
-            lista_seguimientos.nextPage = 'http://localhost:3000/seguimientos/likes?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
+            lista_seguimientos.nextPage = 'http://localhost:3000/twapi/seguimientos?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
         }
         res.status(200).send(lista_seguimientos)
     }
@@ -324,10 +363,10 @@ router.get('/usuarios/:id/seguidores', async function(req, res) {
 
         var lista_seguidores = await Seguimiento.paginate({seguido: usuarioBuscado._id}, options)
         if(lista_seguidores.hasPrevPage){
-            lista_seguidores.prevPage = 'http://localhost:3000/usuarios/' + usuarioBuscado._id + '/seguidores?limit=' + options.limit +'&page=' + (options.page - 1)
+            lista_seguidores.prevPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/seguidores?limit=' + options.limit +'&page=' + (options.page - 1)
         }
         if(lista_seguidores.hasNextPage){
-            lista_seguidores.nextPage = 'http://localhost:3000/usuarios/' + usuarioBuscado._id + '/seguidores?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
+            lista_seguidores.nextPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/seguidores?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
         }
 
         res.status(200).send(lista_seguidores)
@@ -355,10 +394,10 @@ router.get('/usuarios/:id/seguidos', async function(req, res){
 
         var lista_seguidos = await Seguimiento.paginate({seguidor: usuarioBuscado._id}, options)
         if(lista_seguidos.hasPrevPage){
-            lista_seguidos.prevPage = 'http://localhost:3000/usuarios/' + usuarioBuscado._id + '/seguidos?limit=' + options.limit +'&page=' + (options.page - 1)
+            lista_seguidos.prevPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/seguidos?limit=' + options.limit +'&page=' + (options.page - 1)
         }
         if(lista_seguidos.hasNextPage){
-            lista_seguidos.nextPage = 'http://localhost:3000/usuarios/' + usuarioBuscado._id + '/seguidos?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
+            lista_seguidos.nextPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/seguidos?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
         }
 
         res.status(200).send(lista_seguidos)
@@ -370,6 +409,79 @@ router.get('/usuarios/:id/seguidos', async function(req, res){
         return res.status(500).send({mensaje: 'Error al realizar la petición'})
     }
 });
+
+router.get('/mensajes', async function(req, res){
+    const options = {
+        limit: req.query.limit || 10,
+        page: req.query.page || 1,
+    }
+
+    try{
+        var lista_mensajes = await Mensaje.paginate({}, options)
+        console.log(lista_mensajes)
+        if(lista_mensajes.docs.length === 0){
+            return res.status(404).send({mensaje: 'No hay mensajes'})
+        }
+        if(lista_mensajes.hasPrevPage){
+            lista_mensajes.prevPage = 'http://localhost:3000/twapi/mensajes?limit=' + options.limit +'&page=' + (options.page - 1)
+        }
+        if(lista_mensajes.hasNextPage){
+            lista_mensajes.nextPage = 'http://localhost:3000/twapi/mensajes?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
+        }
+        res.status(200).send(lista_mensajes)
+    }
+    catch(err){
+        return res.status(500).send({mensaje: 'Error al realizar la petición'})
+    }
+})
+
+router.get('/mensajes/:id', async function(req, res) {
+    var mensajeBuscado;
+
+    try{
+        mensajeBuscado = await Mensaje.findOne({ _id: req.params.id })
+        res.status(200).send(mensajeBuscado)
+    }
+    catch(err){
+        if(mensajeBuscado === undefined){
+            return res.status(404).send({mensaje: 'No existe un mensaje con ese ID'})
+        }
+        return res.status(500).send({mensaje: 'Error al realizar la petición'})
+    }
+});
+
+//Simularia la bandeja de entrada de un usuario
+router.get('/usuarios/:id/mensajes', async function(req, res){
+    var usuarioBuscado;
+    const options = {
+        limit: req.query.limit || 1,
+        page: req.query.page || 1,
+    }
+
+    try{
+        usuarioBuscado = await User.findOne({_id: req.params.id})
+        console.log(usuarioBuscado)
+        if(usuarioBuscado.mensajes.length === 0){
+            return res.status(200).send({mensaje: 'El usuario no tiene mensajes'})
+        }
+
+        var lista_mensajes = await Mensaje.paginate({ $or: [ { emisor: usuarioBuscado._id }, { receptor: usuarioBuscado._id } ] }, options)
+        if(lista_mensajes.hasPrevPage){
+            lista_mensajes.prevPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/mensajes?limit=' + options.limit +'&page=' + (options.page - 1)
+        }
+        if(lista_mensajes.hasNextPage){
+            lista_mensajes.nextPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/mensajes?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
+        }
+
+        res.status(200).send(lista_mensajes)
+    }
+    catch(err){
+        if(usuarioBuscado === undefined){
+            return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
+        }
+        return res.status(500).send({mensaje: 'Error al realizar la petición'})
+    }
+})
 
 
 //////POST
@@ -420,7 +532,7 @@ router.post('/usuarios', async function(req, res){
 })
 
 router.post('/tweets', async function(req, res) {
-    var idAutor = '6171a211b7b1e76e8e789cc8';
+    var idAutor = '617185b4771edd627c5bd7d6';
 
     try{
         var autor = await User.findOne({ _id: idAutor })
@@ -463,9 +575,12 @@ router.post('/likes', async function(req, res) {
         })
         console.log(nuevoLike)
 
-        await nuevoLike.save()
+        
         tweetBuscado.likes.push(nuevoLike)
+        usuarioBuscado.likes.push(tweetBuscado)
         await tweetBuscado.save()
+        await nuevoLike.save()
+        await usuarioBuscado.save()
 
         res.header('Location', '/twapi/tweets/' + idTweet + '/likes' + nuevoLike._id)
         res.status(201).send({mensaje: "Guardado el like"})
@@ -483,8 +598,8 @@ router.post('/likes', async function(req, res) {
 })
 
 router.post('/seguimientos', async function (req, res) {
-    var idSeguidor = '617185b4771edd627c5bd7d6';
-    var idSeguido = '6171870f4f761a62baca127a';
+    var idSeguidor = '6171a211b7b1e76e8e789cc8';
+    var idSeguido = '61719a6a5d0f156b31f22379';
 
     try{
         var seguidor = await User.findOne({_id: idSeguidor});
@@ -499,10 +614,10 @@ router.post('/seguimientos', async function (req, res) {
         console.log(nuevoSeguimiento)
         await nuevoSeguimiento.save()
 
-        seguidor.seguidos.push(nuevoSeguimiento);
-        seguido.seguidores.push(nuevoSeguimiento);
-        seguidor.save();
-        seguido.save();
+        seguidor.seguidos.push(seguido);
+        seguido.seguidores.push(seguidor);
+        await seguidor.save();
+        await seguido.save();
 
         res.header('Location', '/twapi/seguimiento/' + nuevoSeguimiento._id)
         res.status(201).send({mensaje: "Guardado el seguimiento"})
@@ -519,4 +634,91 @@ router.post('/seguimientos', async function (req, res) {
     }
 })
 
- module.exports = router
+router.post('/mensajes', async function (req, res) {
+    var idEmisor = '61719a6a5d0f156b31f22379';
+    var idReceptor = '6171a211b7b1e76e8e789cc8';
+
+    try{
+        var emisor = await User.findOne({_id: idEmisor});
+        var receptor = await User.findOne({_id: idReceptor});
+        console.log(emisor)
+        console.log(receptor)
+
+        var nuevoMensaje = new Mensaje({
+            emisor: idEmisor,
+            receptor: idReceptor,
+            mensaje: req.body.mensaje
+        })
+        console.log(nuevoMensaje)
+        await nuevoMensaje.save()
+
+        emisor.mensajes.push(nuevoMensaje);
+        receptor.mensajes.push(nuevoMensaje);
+        await emisor.save();
+        await receptor.save();
+
+        res.header('Location', '/twapi/mensajes/' + nuevoMensaje._id)
+        res.status(201).send({mensaje: "Guardado el mensaje"})
+
+    }
+    catch(err){
+        if(emisor === undefined){
+            return res.status(404).send({mensaje: 'No existe un usuario con ese ID (emisor)'})
+        }
+        if(receptor === undefined){
+            return res.status(404).send({mensaje: 'No existe un usuario con ese ID (receptor)'})
+        }
+        res.status(500).send({mensaje: "Error"})
+    }
+})
+
+
+router.put('/usuarios/:id', async function(req, res){
+    var usuarioBuscado;
+    const options = {
+        useFindAndModify: false,
+        new : true
+    }
+    
+    try{
+        usuarioBuscado = await User.findOneAndUpdate({ _id: req.params.id}, req.body, options)
+        console.log(usuarioBuscado)
+        res.status(200).send({mensaje: "Usuario actualizado"})
+    }
+    catch(err){
+        if(usuarioBuscado === undefined){
+            return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
+        }
+        res.status(500).send({mensaje: "Error"})
+    }
+})
+
+//delete: eliminar un like, eliminar un mensaje enviado, eliminar un seguidor, eliminar un seguido, eliminar mi perfil
+
+router.delete('/tweets/:id', async function(req, res){
+    var tweetBuscado;
+    var usuarioBuscado;
+    
+    //Mas adelante deberemos comparar que el usuario que crea el tweet coincide con el que tiene la sesion iniciada
+    //si no no se podrá eliminar el tweet
+    try{
+        tweetBuscado = await Tweet.findOneAndDelete({ _id: req.params.id})
+        usuarioBuscado = await User.findOne({_id: tweetBuscado.autor}) //este id es el que deberemos comparar con el usuario logueado
+        console.log(tweetBuscado)
+        console.log(usuarioBuscado)
+
+        //Eliminamos la referencia del tweet a borrar del array de tweets de su autor
+        await User.findOneAndUpdate({ _id: usuarioBuscado._id}, {$pull: {tweets: tweetBuscado._id}})
+
+        res.status(200).send({mensaje: "Tweet eliminado"})
+    }
+    catch(err){
+        if(tweetBuscado === undefined){
+            return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
+        }
+        res.status(500).send({mensaje: "Error"})
+    }
+})
+
+
+module.exports = router
