@@ -10,6 +10,9 @@ var tweetSchema = new Schema({
     mensaje: String,
     autor: {type: Schema.ObjectId, ref: 'User'},
     likes: [{type: Schema.ObjectId, ref: 'Like'}]
+},
+{
+    versionKey: false
 })
 
 tweetSchema.plugin(mongoosePaginate)

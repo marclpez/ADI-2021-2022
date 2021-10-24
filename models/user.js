@@ -15,6 +15,9 @@ const userSchema = new Schema({
     seguidores: [{type: Schema.ObjectId, ref: 'Seguimiento'}],
     seguidos: [{type: Schema.ObjectId, ref: 'Seguimiento'}],
     mensajes: [{type: Schema.ObjectId, ref: 'Mensaje'}]
+},
+{
+    versionKey: false
 })
 
 userSchema.plugin(mongoosePaginate)

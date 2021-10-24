@@ -8,6 +8,9 @@ var mensajeSchema = new Schema({
     mensaje: String,
     emisor: {type: Schema.ObjectId, ref: 'User'}, 
     receptor: {type: Schema.ObjectId, ref: 'User'}
+},
+{
+    versionKey: false
 })
 
 module.exports = mongoose.model('Mensaje', mensajeSchema, 'mensajes');
