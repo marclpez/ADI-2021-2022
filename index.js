@@ -9,8 +9,20 @@ app.use(express.json())
 const mongoose = require('./database');
 
 //CONEXION CON RUTAS
-const rutas = require('./routes/rutas')
-app.use('/twapi', rutas) //todas las rutas que comiencen por /twapi se iran hacia el archivo rutas
+const rutasUsuarios = require('./routes/rutasUsuarios');
+const rutasTweets = require('./routes/rutasTweets');
+const rutasLikes = require('./routes/rutasLikes');
+const rutasMensajes = require('./routes/rutasMensajes');
+const rutasSeguimientos = require('./routes/rutasSeguimientos');
+
+
+app.use('/twapi/usuarios', rutasUsuarios);
+app.use('/twapi/tweets', rutasTweets);
+app.use('/twapi/likes', rutasLikes);
+app.use('/twapi/mensajes', rutasMensajes);
+app.use('/twapi/seguimientos', rutasSeguimientos);
+
+
 
 app.listen(3000, function () {
     console.log("El servidor express está en el puerto 3000");
