@@ -26,18 +26,16 @@ router.get('/:id', async function(req, res){
 });
 
 router.post('/', async function(req, res) {
-    var idTweet = '6175c9aacfb9802d70b76540';
-    var idUsuario = '6171870f4f761a62baca127a';
 
     try{
-        var tweetBuscado = await Tweet.findOne({ _id: idTweet})
-        var usuarioBuscado = await User.findOne({_id: idUsuario})
+        var tweetBuscado = await Tweet.findOne({ _id: req.body.tweet})
+        var usuarioBuscado = await User.findOne({_id: req.body.usuario})
         console.log(tweetBuscado)
         console.log(usuarioBuscado)
 
         var nuevoLike = new Like({
-            usuario: idUsuario, //Habra que verificar que se introduce un id de un usuario de la BD
-            tweet: idTweet
+            usuario: usuarioBuscado, //Habra que verificar que se introduce un id de un usuario de la BD
+            tweet: tweetBuscado
         })
         console.log(nuevoLike)
 
@@ -48,8 +46,8 @@ router.post('/', async function(req, res) {
         await nuevoLike.save()
         await usuarioBuscado.save()
 
-        res.header('Location', '/twapi/tweets/' + idTweet + '/likes' + nuevoLike._id)
-        res.status(201).send({mensaje: "Guardado el like"})
+        res.header('Location', 'http://localhost:3000/twapi/tweets/' + tweetBuscado._id + '/likes' + nuevoLike._id)
+        res.status(201).send({mensaje: "Guardado el like", like: nuevoLike})
     }
     catch(err){
         console.log(err)

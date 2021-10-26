@@ -4,6 +4,11 @@ const express = require('express')
 const router = express.Router();
 const mongoose = require('mongoose')
 
+//Librerias para subida de imagenes
+const fs = require('fs')
+const multer = require('multer')
+const upload = multer({dest: 'public/images'})
+
 //MODELOS
 const Tweet = require('../models/tweet')
 const User = require('../models/user')
@@ -99,21 +104,22 @@ router.get('/:id/likes', async function(req, res) {
     }
 })
 
-router.post('/', async function(req, res) {
-    var idAutor = '617185b4771edd627c5bd7d6';
+router.post('/', upload.single('image'), async function(req, res) {
 
     try{
-        var autor = await User.findOne({ _id: idAutor })
+        var autor = await User.findOne({ _id: req.body.autor })
         console.log(autor)
+
+        fs.renameSync(req.file.path, req.file.path + '.' + req.file.mimetype.split('/')[1]) //para añadir la extension al nombre de la imagen
+        console.log(req.file)
 
         var nuevoTweet = new Tweet({
             mensaje: req.body.mensaje,
-            autor: idAutor //si se le pasa un id de un autor que no existe falla, oleeee
-            //likes: []
+            autor: autor
         })
         console.log(nuevoTweet);
         await nuevoTweet.save();
-        res.header('Location', '/twapi/tweets/' + nuevoTweet._id)
+        res.header('Location', 'http://localhost:3000/twapi/tweets/' + nuevoTweet._id)
         res.status(201).send({mensaje: "Guardado el tweet", tweet: nuevoTweet})
         autor.tweets.push(nuevoTweet); //Almacenamos el nuevo tweet en la lista de tweets del usuario con idAutor
         await autor.save()

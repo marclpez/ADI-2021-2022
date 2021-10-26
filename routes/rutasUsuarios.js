@@ -7,12 +7,16 @@ var moment = require('moment')
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
 
+
 //MODELOS
 const Tweet = require('../models/tweet')
 const User = require('../models/user')
 const Like = require('../models/like')
 const Seguimiento = require('../models/seguimiento')
 const Mensaje = require('../models/mensaje');
+
+
+
 
 //MIDDLEWARES
 var secret = '123456'
@@ -244,7 +248,6 @@ router.get('/:id/seguidos', async function(req, res){
 });
 
 
-
 //Simularia la bandeja de entrada de un usuario
 router.get('/:id/mensajes', async function(req, res){
     var usuarioBuscado;
@@ -280,6 +283,22 @@ router.get('/:id/mensajes', async function(req, res){
 
 
 //////POST
+
+router.post('/', async function(req, res){
+    var passwordEncriptada = bcrypt.hashSync(req.body.password, 10)
+
+
+    var nuevoUsuario = new User({
+        nickname: req.body.nickname,
+        password: passwordEncriptada,
+        email: req.body.email
+    })
+    
+    console.log(nuevoUsuario)
+    await nuevoUsuario.save()
+    res.header('Location', 'http://localhost:3000/twapi/usuarios/' + nuevoUsuario._id)
+    res.status(201).send({mensaje: "Guardado el usuario", usuario: nuevoUsuario})
+})
 //En una app con autentificación basada en Token, el login genera y devuelve el token
 router.post('/login', function(req, res){
 
@@ -297,7 +316,7 @@ router.post('/login', function(req, res){
                     exp: moment().add(7, 'days').valueOf()
                   }
                 var token = jwt.encode(payload, secret)
-                res.header('Location', '/twapi/usuarios/' + user._id)
+                res.header('Location', 'http://localhost:3000/twapi/usuarios/' + user._id)
                 res.status(201).send({token: token, mensaje:"Login realizado"})
             }
             else{
@@ -306,25 +325,6 @@ router.post('/login', function(req, res){
         }
     })
  })
-
-router.post('/', async function(req, res){
-    var passwordEncriptada = bcrypt.hashSync(req.body.password, 10)
-
-    var nuevoUsuario = new User({
-        nickname: req.body.nickname,
-        password: passwordEncriptada,
-        email: req.body.email,
-        /*tweets: [], SE PODRIA PONER PERO NO ES NECESARIO, LO QUE NO LE PASAMOS LO AÑADE AUTOMATICO GRACIAS A LOS MODELOS
-        seguidores: [],
-        seguidos: [],
-        mensajes: []*/
-    })
-    
-    console.log(nuevoUsuario)
-    await nuevoUsuario.save()
-    res.header('Location', '/twapi/usuarios/' + nuevoUsuario._id)
-    res.status(201).send({mensaje: "Guardado el usuario", usuario: nuevoUsuario})
-})
 
 router.put('/:id', async function(req, res){
     var usuarioBuscado;

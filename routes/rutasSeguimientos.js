@@ -25,18 +25,15 @@ router.get('/:id', async function(req, res) {
 });
 
 router.post('/', async function (req, res) {
-    var idSeguidor = '6171a211b7b1e76e8e789cc8';
-    var idSeguido = '61719a6a5d0f156b31f22379';
-
     try{
-        var seguidor = await User.findOne({_id: idSeguidor});
-        var seguido = await User.findOne({_id: idSeguido});
+        var seguidor = await User.findOne({_id: req.body.seguidor});
+        var seguido = await User.findOne({_id: req.body.seguido});
         console.log(seguidor)
         console.log(seguido)
 
         var nuevoSeguimiento = new Seguimiento({
-            seguidor: idSeguidor,
-            seguido: idSeguido
+            seguidor: seguidor,
+            seguido: seguido
         })
         console.log(nuevoSeguimiento)
         await nuevoSeguimiento.save()
@@ -46,8 +43,8 @@ router.post('/', async function (req, res) {
         await seguidor.save();
         await seguido.save();
 
-        res.header('Location', '/twapi/seguimiento/' + nuevoSeguimiento._id)
-        res.status(201).send({mensaje: "Guardado el seguimiento"})
+        res.header('Location', 'http://localhost:3000/twapi/seguimiento/' + nuevoSeguimiento._id)
+        res.status(201).send({mensaje: "Guardado el seguimiento", seguimiento: nuevoSeguimiento})
 
     }
     catch(err){

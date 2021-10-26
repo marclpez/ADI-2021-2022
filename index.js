@@ -3,7 +3,8 @@
 //Cargamos el módulo express
 var express = require('express');
 var app = express();
-app.use(express.json())
+app.use(express.json());
+
 
 //CONEXION CON DB
 const mongoose = require('./database');
@@ -21,7 +22,6 @@ app.use('/twapi/tweets', rutasTweets);
 app.use('/twapi/likes', rutasLikes);
 app.use('/twapi/mensajes', rutasMensajes);
 app.use('/twapi/seguimientos', rutasSeguimientos);
-
 
 
 app.listen(3000, function () {

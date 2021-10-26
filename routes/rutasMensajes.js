@@ -25,18 +25,15 @@ router.get('/:id', async function(req, res) {
 });
 
 router.post('/', async function (req, res) {
-    var idEmisor = '61719a6a5d0f156b31f22379';
-    var idReceptor = '6171a211b7b1e76e8e789cc8';
-
     try{
-        var emisor = await User.findOne({_id: idEmisor});
-        var receptor = await User.findOne({_id: idReceptor});
+        var emisor = await User.findOne({_id: req.body.emisor});
+        var receptor = await User.findOne({_id: req.body.receptor});
         console.log(emisor)
         console.log(receptor)
 
         var nuevoMensaje = new Mensaje({
-            emisor: idEmisor,
-            receptor: idReceptor,
+            emisor: emisor,
+            receptor: receptor,
             mensaje: req.body.mensaje
         })
         console.log(nuevoMensaje)
@@ -47,8 +44,8 @@ router.post('/', async function (req, res) {
         await emisor.save();
         await receptor.save();
 
-        res.header('Location', '/twapi/mensajes/' + nuevoMensaje._id)
-        res.status(201).send({mensaje: "Guardado el mensaje"})
+        res.header('Location', 'http://localhost:3000/twapi/mensajes/' + nuevoMensaje._id)
+        res.status(201).send({mensaje: "Guardado el mensaje", mensaje_creado: nuevoMensaje})
 
     }
     catch(err){
