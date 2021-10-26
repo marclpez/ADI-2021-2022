@@ -61,7 +61,7 @@ router.get('/:id', async function(req, res) {
         res.status(200).send(tweetBuscado);
     }
     catch(err){
-        if(tweetBuscado === undefined){
+        if(tweetBuscado === undefined || tweetBuscado === null){
             return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
         }
         res.status(500).send({mensaje: 'Error al realizar la petición'}) 
@@ -92,7 +92,7 @@ router.get('/:id/likes', async function(req, res) {
         res.status(200).send(lista_likes)
     }
     catch(err){
-        if(tweetBuscado === undefined){
+        if(tweetBuscado === undefined || tweetBuscado === null){
             return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
         }
         res.status(500).send({mensaje: 'Error al realizar la petición'})
@@ -120,7 +120,7 @@ router.post('/', async function(req, res) {
     }
     catch(err){
         console.log(err)
-        if(autor === undefined){
+        if(autor === undefined || autor === null){
             return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
         }
         res.status(500).send({mensaje: "Error"})
@@ -148,7 +148,7 @@ router.delete('/:id', async function(req, res){
         res.status(200).send({mensaje: "Tweet eliminado"})
     }
     catch(err){
-        if(tweetBuscado === undefined){
+        if(tweetBuscado === undefined || tweetBuscado === null){
             return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
         }
         res.status(500).send({mensaje: "Error"})

@@ -8,30 +8,6 @@ const mongoose = require('mongoose')
 const User = require('../models/user')
 const Mensaje = require('../models/mensaje');
 
-router.get('/', async function(req, res){
-    const options = {
-        limit: req.query.limit || 10,
-        page: req.query.page || 1,
-    }
-
-    try{
-        var lista_mensajes = await Mensaje.paginate({}, options)
-        console.log(lista_mensajes)
-        if(lista_mensajes.docs.length === 0){
-            return res.status(404).send({mensaje: 'No hay mensajes'})
-        }
-        if(lista_mensajes.hasPrevPage){
-            lista_mensajes.prevPage = 'http://localhost:3000/twapi/mensajes?limit=' + options.limit +'&page=' + (options.page - 1)
-        }
-        if(lista_mensajes.hasNextPage){
-            lista_mensajes.nextPage = 'http://localhost:3000/twapi/mensajes?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
-        }
-        res.status(200).send(lista_mensajes)
-    }
-    catch(err){
-        return res.status(500).send({mensaje: 'Error al realizar la petición'})
-    }
-})
 
 router.get('/:id', async function(req, res) {
     var mensajeBuscado;
@@ -41,7 +17,7 @@ router.get('/:id', async function(req, res) {
         res.status(200).send(mensajeBuscado)
     }
     catch(err){
-        if(mensajeBuscado === undefined){
+        if(mensajeBuscado === undefined || mensajeBuscado === null){
             return res.status(404).send({mensaje: 'No existe un mensaje con ese ID'})
         }
         return res.status(500).send({mensaje: 'Error al realizar la petición'})
@@ -76,10 +52,10 @@ router.post('/', async function (req, res) {
 
     }
     catch(err){
-        if(emisor === undefined){
+        if(emisor === undefined || emisor === null){
             return res.status(404).send({mensaje: 'No existe un usuario con ese ID (emisor)'})
         }
-        if(receptor === undefined){
+        if(receptor === undefined || receptor === null){
             return res.status(404).send({mensaje: 'No existe un usuario con ese ID (receptor)'})
         }
         res.status(500).send({mensaje: "Error"})

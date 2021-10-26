@@ -9,30 +9,6 @@ const Tweet = require('../models/tweet')
 const User = require('../models/user')
 const Like = require('../models/like')
 
-//Esta ruta es un poco rara ya que siempre vamos a buscar los likes de un determinado tweet no todos los likes de todos los tweets
-router.get('/', async function(req, res) {
-    const options = {
-        limit: req.query.limit || 10,
-        page: req.query.page || 1,
-    }
-    
-    try{
-        var lista_likes = await Like.paginate({}, options)
-        if(lista_likes.docs.length === 0){
-            return res.status(404).send({mensaje: 'No hay likes'})
-        }
-        if(lista_likes.hasPrevPage){
-            lista_likes.prevPage = 'http://localhost:3000/twapi/likes?limit=' + options.limit +'&page=' + (options.page - 1)
-        }
-        if(lista_likes.hasNextPage){
-            lista_likes.nextPage = 'http://localhost:3000/twapi/likes?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
-        }
-        res.status(200).send(lista_likes)
-    }
-    catch(err){
-        res.status(500).send({mensaje: 'Error al realizar la petición'})
-    }
-});
 
 router.get('/:id', async function(req, res){
     var likeBuscado;
@@ -42,14 +18,14 @@ router.get('/:id', async function(req, res){
         res.status(200).send(likeBuscado)
     }
     catch(err){
-        if(likeBuscado === undefined){
+        if(likeBuscado === undefined || likeBuscado === null){
             return res.status(404).send({mensaje: 'No existe un like con ese ID'})
         }
         res.status(500).send({mensaje: 'Error al realizar la petición'})
     }
 });
 
-router.post('/likes', async function(req, res) {
+router.post('/', async function(req, res) {
     var idTweet = '6175c9aacfb9802d70b76540';
     var idUsuario = '6171870f4f761a62baca127a';
 

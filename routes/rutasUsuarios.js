@@ -101,7 +101,7 @@ router.get('/:id', async function(req, res) {
         res.status(200).send(usuarioBuscado);
     }
     catch(err){
-        if(usuarioBuscado === undefined){
+        if(usuarioBuscado === undefined || usuarioBuscado === null){
             return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
         }
         res.status(500).send({mensaje: 'Error al realizar la petición'}) 
@@ -137,7 +137,7 @@ router.get('/:id/tweets', async function(req, res) {
         res.status(200).send(lista_tweets);
     }
     catch(err){
-        if(usuarioBuscado === undefined){
+        if(usuarioBuscado === undefined || usuarioBuscado === null){
             return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
         }
         res.status(500).send({mensaje: 'Error al realizar la petición'})
@@ -173,7 +173,7 @@ router.get('/:id/likes', async function(req, res){
         res.status(200).send(lista_likes);
     }
     catch(err){
-        if(usuarioBuscado === undefined){
+        if(usuarioBuscado === undefined || usuarioBuscado === null){
             return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
         }
         res.status(500).send({mensaje: 'Error al realizar la petición'})
@@ -205,7 +205,7 @@ router.get('/:id/seguidores', async function(req, res) {
         res.status(200).send(lista_seguidores)
     }
     catch(err){
-        if(usuarioBuscado === undefined){
+        if(usuarioBuscado === undefined || usuarioBuscado === null){
             return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
         }
         return res.status(500).send({mensaje: 'Error al realizar la petición'})
@@ -236,7 +236,7 @@ router.get('/:id/seguidos', async function(req, res){
         res.status(200).send(lista_seguidos)
     }
     catch(err){
-        if(usuarioBuscado === undefined){
+        if(usuarioBuscado === undefined || usuarioBuscado === null){
             return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
         }
         return res.status(500).send({mensaje: 'Error al realizar la petición'})
@@ -271,7 +271,7 @@ router.get('/:id/mensajes', async function(req, res){
         res.status(200).send(lista_mensajes)
     }
     catch(err){
-        if(usuarioBuscado === undefined){
+        if(usuarioBuscado === undefined || usuarioBuscado === null){
             return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
         }
         return res.status(500).send({mensaje: 'Error al realizar la petición'})
@@ -339,7 +339,7 @@ router.put('/:id', async function(req, res){
         res.status(200).send({mensaje: "Usuario actualizado"})
     }
     catch(err){
-        if(usuarioBuscado === undefined){
+        if(usuarioBuscado === undefined || usuarioBuscado === null){
             return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
         }
         res.status(500).send({mensaje: "Error"})
