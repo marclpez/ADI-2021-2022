@@ -26,23 +26,6 @@ var LocalStorage = require('node-localstorage').LocalStorage,
 localStorage = new LocalStorage('./scratch');
 
 
-
-
-//////////
-
-
-//EJEMPLO RUTA PROTEGIDA
-router.get('/protegido', auth.chequeaJWT, function(req, res){
-    var token = getTokenFromAuthHeader(req)
-    var payload = token.split(".")[1]
-    var payloadDecoded = Buffer.from(payload, "Base64").toString() //decodificamos el payload
-    var payloadDecodedtoJSON = JSON.parse(payloadDecoded); //lo pasamos a jSON
-    console.log(payloadDecodedtoJSON)
-    var nickname = payloadDecodedtoJSON.nickname //accedemos al campo del json que queremos
-    res.send({mensaje: "hola " + nickname, dato: "recurso  protegido"})
-})
-///////////
-
 //////GET
 router.get('/', async function(req, res) {
     const options = {
@@ -248,19 +231,28 @@ router.get('/:id/imagenes', async function(req, res){
 
 //////POST
 router.post('/', async function(req, res){
-    var passwordEncriptada = bcrypt.hashSync(req.body.password, 10)
-
-
-    var nuevoUsuario = new User({
-        nickname: req.body.nickname,
-        password: passwordEncriptada,
-        email: req.body.email
-    })
+    try{
+        if(localStorage.idUsuario !== null){
+            return res.status(200).send({mensaje: "Ya estas logueado"})
+        }
+        var passwordEncriptada = bcrypt.hashSync(req.body.password, 10)
     
-    console.log(nuevoUsuario)
-    await nuevoUsuario.save()
-    res.header('Location', 'http://localhost:3000/twapi/usuarios/' + nuevoUsuario._id)
-    res.status(201).send({mensaje: "Guardado el usuario", usuario: nuevoUsuario})
+    
+        var nuevoUsuario = new User({
+            nickname: req.body.nickname,
+            password: passwordEncriptada,
+            email: req.body.email
+        })
+        
+        console.log(nuevoUsuario)
+        await nuevoUsuario.save();
+        res.header('Location', 'http://localhost:3000/twapi/usuarios/' + nuevoUsuario._id)
+        res.status(201).send({mensaje: "Guardado el usuario", usuario: nuevoUsuario})
+    }
+    catch(err){
+        res.status(400).send({mensaje: String(err)});
+    }
+
 });
 
 //En una app con autentificación basada en Token, el login genera y devuelve el token
@@ -292,6 +284,11 @@ router.post('/login', async function(req, res){
         console.log(err)
         res.status(500).send({mensaje:"Error"});
     }
+ });
+
+ router.post('/logout', auth.chequeaJWT, async function(req, res){
+    localStorage.clear();
+    res.status(200).send({mensaje: "Sesión cerrada"});
  });
 
  router.post('/imagenes', auth.chequeaJWT, upload.single('image'), async function(req, res){

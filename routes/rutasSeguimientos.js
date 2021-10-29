@@ -29,9 +29,9 @@ router.get('/:id', async function(req, res) {
     }
 });
 
-router.post('/', async function (req, res) {
+router.post('/', auth.chequeaJWT, async function (req, res) {
     try{
-        var seguidor = await User.findOne({_id: req.body.seguidor});
+        var seguidor = await User.findOne({_id: localStorage.idUsuario});
         var seguido = await User.findOne({_id: req.body.seguido});
         console.log(seguidor)
         console.log(seguido)
@@ -63,7 +63,7 @@ router.post('/', async function (req, res) {
     }
 })
 
-router.delete('/:id', async function(req, res){
+router.delete('/:id', auth.chequeaJWT, async function(req, res){
     var seguimientoBuscado;
     const options = {
         useFindAndModify: false,
@@ -75,6 +75,9 @@ router.delete('/:id', async function(req, res){
     try{
         seguimientoBuscado = await Seguimiento.findOneAndDelete({ _id: req.params.id})
         console.log(seguimientoBuscado)
+        if(seguimientoBuscado.seguidor != localStorage.idUsuario && seguimientoBuscado.seguido != localStorage.idUsuario){
+            return res.status(401).send({mensaje: "No puedes eliminar un seguimiento que no has realizado tú"})
+        }
         //Eliminamos la referencia del seguimiento a borrar del array de seguidos del usuario seguidor en el seguimiento
         await User.findOneAndUpdate({ _id: seguimientoBuscado.seguidor}, {$pull: {seguidos: seguimientoBuscado.seguido}}, options)
         //Eliminamos la referencia del seguimiento a borrar del array de seguidores del usuario seguido en el seguimiento
