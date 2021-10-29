@@ -14,7 +14,8 @@ const userSchema = new Schema({
     seguidores: [{type: Schema.ObjectId, ref: 'User'}],
     seguidos: [{type: Schema.ObjectId, ref: 'User'}],
     mensajes: [{type: Schema.ObjectId, ref: 'Mensaje'}],
-    likes: [{type: Schema.ObjectId, ref: 'Tweet'}]
+    likes: [{type: Schema.ObjectId, ref: 'Tweet'}],
+    imagenes: [{type: String}]
 },
 {
     versionKey: false

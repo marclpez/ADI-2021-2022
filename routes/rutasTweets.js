@@ -3,16 +3,15 @@
 const express = require('express')
 const router = express.Router();
 const mongoose = require('mongoose')
-
-//Librerias para subida de imagenes
-const fs = require('fs')
-const multer = require('multer')
-const upload = multer({dest: 'public/images'})
+const auth = require('../middlewares/auth')
 
 //MODELOS
 const Tweet = require('../models/tweet')
 const User = require('../models/user')
 const Like = require('../models/like')
+
+var LocalStorage = require('node-localstorage').LocalStorage,
+localStorage = new LocalStorage('./scratch');
 
 router.get('/', async function(req, res) {
     //Si no le llega un valor desde la query pone el por defecto ||
@@ -23,6 +22,9 @@ router.get('/', async function(req, res) {
 
     try{
         var lista_tweets = await Tweet.paginate({}, options);
+        console.log(localStorage.idUsuario);
+        console.log(localStorage.nickname);
+        console.log(localStorage.token);
 
         if(lista_tweets.docs.length === 0){ //si el array de docs que hay en lista_tweets al paginar esta vacio es que no hay tweets almacenados
             return res.status(404).send({mensaje: 'No hay tweets'})
@@ -41,19 +43,6 @@ router.get('/', async function(req, res) {
     }
  });
 
-router.get('/destacados', function(req, res) {
-
-    //DEVUELVE LAS FILAS DE UNA TABLA que coinciden con el filtro
-    Like.find().countDocuments({tweet: '61719e2985e48e6c89091f87'}, function (err, count) {
-        if(err) console.log(err)
-        else console.log(count)
-    })
-
-    //VER COMO HACER LA CONSULTA SIN NECESIDAD DE BUCLES FOR 
-
-}); //TODO
-
-
 router.get('/:id', async function(req, res) {
     var tweetBuscado;
 
@@ -63,6 +52,7 @@ router.get('/:id', async function(req, res) {
             return res.status(404).send({mensaje: 'nulo'})
         }
         console.log(tweetBuscado)
+        console.log(localStorage.idUsuario)
         res.status(200).send(tweetBuscado);
     }
     catch(err){
@@ -104,14 +94,11 @@ router.get('/:id/likes', async function(req, res) {
     }
 })
 
-router.post('/', upload.single('image'), async function(req, res) {
+router.post('/', auth.chequeaJWT, async function(req, res) {
 
     try{
-        var autor = await User.findOne({ _id: req.body.autor })
+        var autor = await User.findOne({ _id: localStorage.idUsuario })
         console.log(autor)
-
-        fs.renameSync(req.file.path, req.file.path + '.' + req.file.mimetype.split('/')[1]) //para añadir la extension al nombre de la imagen
-        console.log(req.file)
 
         var nuevoTweet = new Tweet({
             mensaje: req.body.mensaje,
@@ -122,7 +109,7 @@ router.post('/', upload.single('image'), async function(req, res) {
         res.header('Location', 'http://localhost:3000/twapi/tweets/' + nuevoTweet._id)
         res.status(201).send({mensaje: "Guardado el tweet", tweet: nuevoTweet})
         autor.tweets.push(nuevoTweet); //Almacenamos el nuevo tweet en la lista de tweets del usuario con idAutor
-        await autor.save()
+        await autor.save();
     }
     catch(err){
         console.log(err)
@@ -133,7 +120,7 @@ router.post('/', upload.single('image'), async function(req, res) {
     }
 })
 
-router.delete('/:id', async function(req, res){
+router.delete('/:id', auth.chequeaJWT, async function(req, res){
     var tweetBuscado;
     var usuarioBuscado;
     const options = {
@@ -141,15 +128,19 @@ router.delete('/:id', async function(req, res){
         new : true
     }
     
-    //Mas adelante deberemos comparar que el usuario que elimina el tweet coincide con el que tiene la sesion iniciada
-    //si no no se podrá eliminar el tweet
     try{
-        tweetBuscado = await Tweet.findOneAndDelete({ _id: req.params.id})
+        tweetBuscado = await Tweet.findOne({ _id: req.params.id})
+        usuarioBuscado = await User.findOne({_id: localStorage.idUsuario})
+        if(tweetBuscado.autor != localStorage.idUsuario){
+            return res.status(401).send({mensaje: "No puedes eliminar un tweet que no es tuyo"})
+        }
+        await Tweet.deleteOne({ _id: tweetBuscado._id}) //eliminamos el tweet
         //Eliminamos la referencia del tweet a borrar del array de tweets de su autor
-        await User.findOneAndUpdate({ _id: usuarioBuscado._id}, {$pull: {tweets: tweetBuscado._id}}, options)
+        await User.updateMany({}, {$pull: {likes: tweetBuscado._id}}) //eliminamos el tweet del listado de tweets del autor
+        await Like.deleteMany({tweet: tweetBuscado._id}) //elinamos los likes al tweet de la lista de likes
+        await User.findOneAndUpdate({ _id: usuarioBuscado._id}, {$pull: {tweets: tweetBuscado._id}}, options) //eliminamos de los usuarios que le han dado like el tweet de su lista de likes
         console.log(tweetBuscado)
         console.log(usuarioBuscado)
-
 
         res.status(200).send({mensaje: "Tweet eliminado"})
     }

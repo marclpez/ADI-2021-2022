@@ -16,7 +16,6 @@ const rutasLikes = require('./routes/rutasLikes');
 const rutasMensajes = require('./routes/rutasMensajes');
 const rutasSeguimientos = require('./routes/rutasSeguimientos');
 
-
 app.use('/twapi/usuarios', rutasUsuarios);
 app.use('/twapi/tweets', rutasTweets);
 app.use('/twapi/likes', rutasLikes);
@@ -27,3 +26,4 @@ app.use('/twapi/seguimientos', rutasSeguimientos);
 app.listen(3000, function () {
     console.log("El servidor express está en el puerto 3000");
  });
+

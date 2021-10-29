@@ -6,6 +6,12 @@ var jwt = require('jwt-simple')
 var moment = require('moment')
 const mongoose = require('mongoose')
 const bcrypt = require('bcrypt')
+const auth = require('../middlewares/auth')
+
+//Librerias para subida de imagenes
+const fs = require('fs')
+const multer = require('multer')
+const upload = multer({dest: 'public/images'})
 
 
 //MODELOS
@@ -15,47 +21,18 @@ const Like = require('../models/like')
 const Seguimiento = require('../models/seguimiento')
 const Mensaje = require('../models/mensaje');
 
+//LocalStorage
+var LocalStorage = require('node-localstorage').LocalStorage,
+localStorage = new LocalStorage('./scratch');
 
 
 
-//MIDDLEWARES
-var secret = '123456'
-//Middleware: lo pondremos ANTES de procesar cualquier reqición que requiera autentificación
-function chequeaJWT(req, res, next) {
-
-    var token = getTokenFromAuthHeader(req)
-
-    try{
-      jwt.decode(token, secret) //si no lanza excepcion pasamos al siguiente middleware
-      next()
-    }
-    catch{
-        res.status(403)
-        res.send({mensaje: "no tienes permisos"})
-    }
-}
-
-//Si en la petición HTTP "pet" existe una cabecera "Authorization"
-//con el formato "Authorization: Bearer XXXXXX"  
-//devuelve el XXXXXX (en JWT esto sería el token)
-function getTokenFromAuthHeader(req) {
-    var cabecera = req.header('Authorization')
-    if (cabecera) {
-        //Parte el string por el espacio. Si está, devolverá un array de 2
-        //la 2ª pos será lo que hay detrás de "Bearer"
-        var campos = cabecera.split(' ')
-        if (campos.length > 1 && cabecera.startsWith('Bearer')) {
-            return campos[1] 
-        }
-    }
-    return undefined
-}
 
 //////////
 
 
 //EJEMPLO RUTA PROTEGIDA
-router.get('/protegido', chequeaJWT, function(req, res){
+router.get('/protegido', auth.chequeaJWT, function(req, res){
     var token = getTokenFromAuthHeader(req)
     var payload = token.split(".")[1]
     var payloadDecoded = Buffer.from(payload, "Base64").toString() //decodificamos el payload
@@ -67,9 +44,6 @@ router.get('/protegido', chequeaJWT, function(req, res){
 ///////////
 
 //////GET
-
-
-
 router.get('/', async function(req, res) {
     const options = {
         limit: req.query.limit || 10,
@@ -247,9 +221,8 @@ router.get('/:id/seguidos', async function(req, res){
     }
 });
 
-
 //Simularia la bandeja de entrada de un usuario
-router.get('/:id/mensajes', async function(req, res){
+router.get('/:id/imagenes', async function(req, res){
     var usuarioBuscado;
     const options = {
         limit: req.query.limit || 1,
@@ -259,19 +232,11 @@ router.get('/:id/mensajes', async function(req, res){
     try{
         usuarioBuscado = await User.findOne({_id: req.params.id})
         console.log(usuarioBuscado)
-        if(usuarioBuscado.mensajes.length === 0){
-            return res.status(200).send({mensaje: 'El usuario no tiene mensajes'})
+        if(usuarioBuscado.imagenes.length === 0){
+            return res.status(200).send({mensaje: 'El usuario no tiene imágenes'})
         }
 
-        var lista_mensajes = await Mensaje.paginate({ $or: [ { emisor: usuarioBuscado._id }, { receptor: usuarioBuscado._id } ] }, options)
-        if(lista_mensajes.hasPrevPage){
-            lista_mensajes.prevPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/mensajes?limit=' + options.limit +'&page=' + (options.page - 1)
-        }
-        if(lista_mensajes.hasNextPage){
-            lista_mensajes.nextPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/mensajes?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
-        }
-
-        res.status(200).send(lista_mensajes)
+        res.status(200).send(usuarioBuscado.imagenes);
     }
     catch(err){
         if(usuarioBuscado === undefined || usuarioBuscado === null){
@@ -281,9 +246,7 @@ router.get('/:id/mensajes', async function(req, res){
     }
 })
 
-
 //////POST
-
 router.post('/', async function(req, res){
     var passwordEncriptada = bcrypt.hashSync(req.body.password, 10)
 
@@ -298,35 +261,60 @@ router.post('/', async function(req, res){
     await nuevoUsuario.save()
     res.header('Location', 'http://localhost:3000/twapi/usuarios/' + nuevoUsuario._id)
     res.status(201).send({mensaje: "Guardado el usuario", usuario: nuevoUsuario})
-})
-//En una app con autentificación basada en Token, el login genera y devuelve el token
-router.post('/login', function(req, res){
+});
 
-    User.findOne({ nickname: req.body.nickname }, function (err, user){
-        console.log(user)
-        if(err || user === null){
-            console.log(err)
-            res.status(403).send({mensaje:"Credenciales incorrectas"})
+//En una app con autentificación basada en Token, el login genera y devuelve el token
+router.post('/login', async function(req, res){
+    var usuarioBuscado;
+
+    try{
+        usuarioBuscado = await User.findOne({ nickname: req.body.nickname});
+        console.log(usuarioBuscado);
+
+        const iguales = bcrypt.compareSync(req.body.password, usuarioBuscado.password) //recibe el valor sin encriptar y el encriptado
+        if(iguales){
+            var token = auth.creaToken(usuarioBuscado);
+            res.header('Location', 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id)
+            auth.guardarDatosLogin(usuarioBuscado._id, usuarioBuscado.nickname, token);
+            console.log(localStorage.idUsuario);
+            console.log(localStorage.nickname);
+            console.log(localStorage.token);
+            res.status(201).send({token: token, mensaje:"Login realizado"})
         }
         else{
-            const iguales = bcrypt.compareSync(req.body.password, user.password) //recibe el valor sin encriptar y el encriptado
-            if(iguales){
-                var payload = {
-                    nickname: req.body.nickname,
-                    exp: moment().add(7, 'days').valueOf()
-                  }
-                var token = jwt.encode(payload, secret)
-                res.header('Location', 'http://localhost:3000/twapi/usuarios/' + user._id)
-                res.status(201).send({token: token, mensaje:"Login realizado"})
-            }
-            else{
-                res.status(403).send({mensaje:"Credenciales incorrectas"})
-            }
+            res.status(403).send({mensaje:"Credenciales incorrectas"})
         }
-    })
- })
+    }
+    catch(err){
+        if(usuarioBuscado === undefined || usuarioBuscado === null){
+            return res.status(403).send({mensaje:"Credenciales incorrectas"});
+        }
+        console.log(err)
+        res.status(500).send({mensaje:"Error"});
+    }
+ });
 
-router.put('/:id', async function(req, res){
+ router.post('/imagenes', auth.chequeaJWT, upload.single('image'), async function(req, res){
+    var usuarioBuscado;
+
+    try{
+        usuarioBuscado = await User.findOne({ _id: localStorage.idUsuario });
+        fs.renameSync(req.file.path, req.file.path + '.' + req.file.mimetype.split('/')[1]); //para añadir la extension al nombre de la imagen
+        console.log(req.file);
+        usuarioBuscado.imagenes.push(req.file.path.split('/')[2]);
+        usuarioBuscado.save();
+        res.header('Location', 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/imagenes');
+        res.status(201).send({mensaje: 'Imagen subida'});
+    }
+    catch(err){
+        if(usuarioBuscado === undefined || usuarioBuscado === null){
+            return res.status(404).send({mensaje: 'No existe un usuario con ese ID'});
+        }
+        res.status(500).send({mensaje: 'Error'});
+    }
+ });
+
+router.put('/:id', auth.chequeaJWT, async function(req, res){
     var usuarioBuscado;
     const options = {
         useFindAndModify: false,
@@ -344,6 +332,6 @@ router.put('/:id', async function(req, res){
         }
         res.status(500).send({mensaje: "Error"})
     }
-})
+});
 
 module.exports = router

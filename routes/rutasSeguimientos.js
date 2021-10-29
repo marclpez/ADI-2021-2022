@@ -3,10 +3,15 @@
 const express = require('express')
 const router = express.Router();
 const mongoose = require('mongoose')
+const auth = require('../middlewares/auth')
 
 //MODELOS
 const User = require('../models/user')
 const Seguimiento = require('../models/seguimiento')
+
+//LocalStorage
+var LocalStorage = require('node-localstorage').LocalStorage,
+localStorage = new LocalStorage('./scratch');
 
 
 router.get('/:id', async function(req, res) {

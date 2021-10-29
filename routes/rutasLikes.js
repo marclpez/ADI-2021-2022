@@ -3,11 +3,16 @@
 const express = require('express')
 const router = express.Router();
 const mongoose = require('mongoose')
+const auth = require('../middlewares/auth')
 
 //MODELOS
 const Tweet = require('../models/tweet')
 const User = require('../models/user')
 const Like = require('../models/like')
+
+//LocalStorage
+var LocalStorage = require('node-localstorage').LocalStorage,
+localStorage = new LocalStorage('./scratch');
 
 
 router.get('/:id', async function(req, res){
@@ -25,11 +30,11 @@ router.get('/:id', async function(req, res){
     }
 });
 
-router.post('/', async function(req, res) {
+router.post('/', auth.chequeaJWT, async function(req, res) {
 
     try{
         var tweetBuscado = await Tweet.findOne({ _id: req.body.tweet})
-        var usuarioBuscado = await User.findOne({_id: req.body.usuario})
+        var usuarioBuscado = await User.findOne({_id: localStorage.idUsuario})
         console.log(tweetBuscado)
         console.log(usuarioBuscado)
 
@@ -46,7 +51,7 @@ router.post('/', async function(req, res) {
         await nuevoLike.save()
         await usuarioBuscado.save()
 
-        res.header('Location', 'http://localhost:3000/twapi/tweets/' + tweetBuscado._id + '/likes' + nuevoLike._id)
+        res.header('Location', 'http://localhost:3000/twapi/likes' + nuevoLike._id)
         res.status(201).send({mensaje: "Guardado el like", like: nuevoLike})
     }
     catch(err){
@@ -54,25 +59,23 @@ router.post('/', async function(req, res) {
         if(tweetBuscado === undefined || tweetBuscado === null){
             return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
         }
-        if(usuarioBuscado === undefined || usuarioBuscado === null){
-            return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
-        }
         res.status(500).send({mensaje: "Error"})
     }
 })
 
-router.delete('/:id', async function(req, res){
+router.delete('/:id', auth.chequeaJWT, async function(req, res){
     var likeBuscado;
     const options = {
         useFindAndModify: false,
         new : true
     }
-    
-    //Mas adelante deberemos comparar que el usuario que elimina el like coincide con el que tiene la sesion iniciada
-    //si no no se podrá eliminar el like
+
     try{
         likeBuscado = await Like.findOneAndDelete({ _id: req.params.id})
         console.log(likeBuscado)
+        if(likeBuscado.usuario != localStorage.idUsuario){
+            return res.status(401).send({mensaje: "No puedes eliminar un like que no has dado tú"})
+        }
         //Eliminamos la referencia del like a borrar del array de likes de su tweet relacionado
         await Tweet.findOneAndUpdate({ _id: likeBuscado.tweet}, {$pull: {likes: likeBuscado._id}}, options)
         //Eliminamos la referencia del like a borrar del array de likes de su usuario relacionado
