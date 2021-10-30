@@ -244,10 +244,15 @@ router.post('/', async function(req, res){
             email: req.body.email
         })
         
-        console.log(nuevoUsuario)
-        await nuevoUsuario.save();
-        res.header('Location', 'http://localhost:3000/twapi/usuarios/' + nuevoUsuario._id)
-        res.status(201).send({mensaje: "Guardado el usuario", usuario: nuevoUsuario})
+        var usuarioConMismoNickname = await User.findOne({nickname: nuevoUsuario.nickname});
+        console.log(usuarioConMismoNickname)
+        if(usuarioConMismoNickname === null || usuarioConMismoNickname === undefined){
+            //console.log(nuevoUsuario)
+            await nuevoUsuario.save();
+            res.header('Location', 'http://localhost:3000/twapi/usuarios/' + nuevoUsuario._id)
+            return res.status(201).send({mensaje: "Guardado el usuario", usuario: nuevoUsuario})
+        }
+        res.status(400).send({mensaje: "Ya existe un usuario con ese nickname, prueba con otro"});
     }
     catch(err){
         res.status(400).send({mensaje: String(err)});
