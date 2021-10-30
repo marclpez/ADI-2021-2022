@@ -325,6 +325,10 @@ router.put('/', auth.chequeaJWT, async function(req, res){
     }
     
     try{
+        if(req.body.password){
+            req.body.password = bcrypt.hashSync(req.body.password, 10);
+        }
+        console.log("password " + req.body.password);
         usuarioBuscado = await User.findOneAndUpdate({ _id: localStorage.idUsuario}, req.body, options)
         console.log(usuarioBuscado)
         if(usuarioBuscado === null){
@@ -333,6 +337,7 @@ router.put('/', auth.chequeaJWT, async function(req, res){
         else if(req.body.nickname){
             localStorage.setItem('nickname', req.body.nickname);
         }
+        localStorage.setItem("idUsuario", usuarioBuscado._id)
         res.status(200).send({mensaje: "Usuario actualizado"})
     }
     catch(err){
