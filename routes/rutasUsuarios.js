@@ -29,7 +29,7 @@ localStorage = new LocalStorage('./scratch');
 //////GET
 router.get('/', async function(req, res) {
     const options = {
-        limit: req.query.limit || 10,
+        limit: req.query.limit || 2,
         page: req.query.page || 1,
     }   
 
@@ -151,19 +151,22 @@ router.get('/:id/seguidores', async function(req, res) {
 
     try{
         usuarioBuscado = await User.findOne({_id: req.params.id})
-        if(usuarioBuscado.seguidores.length === 0){
-            return res.status(200).send({mensaje: 'El usuario no tiene seguidores'})
+        if(usuarioBuscado !== null){
+            if(usuarioBuscado.seguidores.length === 0){
+                return res.status(200).send({mensaje: 'El usuario no tiene seguidores'})
+            }
+    
+            var lista_seguidores = await Seguimiento.paginate({seguido: usuarioBuscado._id}, options)
+            if(lista_seguidores.hasPrevPage){
+                lista_seguidores.prevPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/seguidores?limit=' + options.limit +'&page=' + (options.page - 1)
+            }
+            if(lista_seguidores.hasNextPage){
+                lista_seguidores.nextPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/seguidores?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
+            }
+    
+            return res.status(200).send(lista_seguidores)
         }
-
-        var lista_seguidores = await Seguimiento.paginate({seguido: usuarioBuscado._id}, options)
-        if(lista_seguidores.hasPrevPage){
-            lista_seguidores.prevPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/seguidores?limit=' + options.limit +'&page=' + (options.page - 1)
-        }
-        if(lista_seguidores.hasNextPage){
-            lista_seguidores.nextPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/seguidores?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
-        }
-
-        res.status(200).send(lista_seguidores)
+        res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
     }
     catch(err){
         if(usuarioBuscado === undefined || usuarioBuscado === null){
@@ -316,7 +319,7 @@ router.post('/login', async function(req, res){
     }
  });
 
-router.put('/:id', auth.chequeaJWT, async function(req, res){
+router.put('/', auth.chequeaJWT, async function(req, res){
     var usuarioBuscado;
     const options = {
         useFindAndModify: false,
@@ -324,8 +327,14 @@ router.put('/:id', auth.chequeaJWT, async function(req, res){
     }
     
     try{
-        usuarioBuscado = await User.findOneAndUpdate({ _id: req.params.id}, req.body, options)
+        usuarioBuscado = await User.findOneAndUpdate({ _id: localStorage.idUsuario}, req.body, options)
         console.log(usuarioBuscado)
+        if(usuarioBuscado === null){
+            return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
+        }
+        else if(req.body.nickname){
+            localStorage.setItem('nickname', req.body.nickname);
+        }
         res.status(200).send({mensaje: "Usuario actualizado"})
     }
     catch(err){

@@ -38,6 +38,9 @@ router.post('/', auth.chequeaJWT, async function(req, res) {
         console.log(tweetBuscado)
         console.log(usuarioBuscado)
 
+        if(tweetBuscado === null){
+            return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
+        }
         var nuevoLike = new Like({
             usuario: usuarioBuscado, //Habra que verificar que se introduce un id de un usuario de la BD
             tweet: tweetBuscado
@@ -45,18 +48,18 @@ router.post('/', auth.chequeaJWT, async function(req, res) {
         console.log(nuevoLike)
 
         
-        tweetBuscado.likes.push(nuevoLike)
-        usuarioBuscado.likes.push(tweetBuscado)
-        await tweetBuscado.save()
-        await nuevoLike.save()
-        await usuarioBuscado.save()
-
+        //Actualizamos BD al introducir el like
+        await User.findByIdAndUpdate(usuarioBuscado._id, {$push: {'likes': nuevoLike}})
+        nuevoLike.save()
+        await Tweet.findByIdAndUpdate(tweetBuscado._id, {$push: {'likes': nuevoLike}})
+        
+        console.log("he acabado")
         res.header('Location', 'http://localhost:3000/twapi/likes' + nuevoLike._id)
-        res.status(201).send({mensaje: "Guardado el like", like: nuevoLike})
+        return res.status(201).send({mensaje: "Guardado el like", like: nuevoLike})
     }
     catch(err){
         console.log(err)
-        if(tweetBuscado === undefined || tweetBuscado === null){
+        if(tweetBuscado === undefined){
             return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
         }
         res.status(500).send({mensaje: "Error"})

@@ -64,37 +64,45 @@ router.get('/:id', auth.chequeaJWT, async function(req, res) {
     }
 });
 
-router.post('/', async function (req, res) {
+router.post('/', auth.chequeaJWT, async function (req, res) {
     try{
         var emisor = await User.findOne({_id: localStorage.idUsuario});
         var receptor = await User.findOne({_id: req.body.receptor});
         console.log(emisor)
         console.log(receptor)
 
-        var nuevoMensaje = new Mensaje({
-            emisor: emisor,
-            receptor: receptor,
-            mensaje: req.body.mensaje
-        })
-        console.log(nuevoMensaje)
-        await nuevoMensaje.save()
-
-        emisor.mensajes.push(nuevoMensaje);
-        receptor.mensajes.push(nuevoMensaje);
-        await emisor.save();
-        await receptor.save();
-
-        res.header('Location', 'http://localhost:3000/twapi/mensajes/' + nuevoMensaje._id)
-        res.status(201).send({mensaje: "Guardado el mensaje", mensaje_creado: nuevoMensaje})
-
+        if(emisor !== null && receptor !== null){
+            var nuevoMensaje = new Mensaje({
+                emisor: emisor,
+                receptor: receptor,
+                mensaje: req.body.mensaje
+            })
+            console.log(nuevoMensaje)
+            nuevoMensaje.save()
+    
+            emisor.mensajes.push(nuevoMensaje);
+            receptor.mensajes.push(nuevoMensaje);
+            emisor.save();
+            receptor.save();
+    
+            res.header('Location', 'http://localhost:3000/twapi/mensajes/' + nuevoMensaje._id)
+            res.status(201).send({mensaje: "Guardado el mensaje", mensaje_creado: nuevoMensaje})
+        }
+        else{
+            if(emisor === null){
+                return res.status(404).send({mensaje: 'No existe un usuario con ese ID (emisor)'})
+            }
+            res.status(404).send({mensaje: 'No existe un usuario con ese ID (receptor)'})
+        }
     }
     catch(err){
-        if(emisor === undefined || emisor === null){
+        if(emisor === undefined){
             return res.status(404).send({mensaje: 'No existe un usuario con ese ID (emisor)'})
         }
-        if(receptor === undefined || receptor === null){
+        if(receptor === undefined){
             return res.status(404).send({mensaje: 'No existe un usuario con ese ID (receptor)'})
         }
+        console.log(err)
         res.status(500).send({mensaje: "Error"})
     }
 })
@@ -106,10 +114,11 @@ router.delete('/:id', auth.chequeaJWT, async function(req, res){
         new : true
     }
     
-    //Mas adelante deberemos comparar que el usuario que elimina el mensaje coincide con el que tiene la sesion iniciada
-    //si no no se podrá eliminar el mensaje
     try{
         mensajeBuscado = await Mensaje.findOne({ _id: req.params.id })
+        if(mensajeBuscado === null){
+            return res.status(404).send({mensaje: 'No existe un mensaje con ese ID'})
+        }
         if(mensajeBuscado.emisor != localStorage.idUsuario && mensajeBuscado.receptor != localStorage.idUsuario){
             return res.status(401).send({mensaje: "Ese mensaje no te pertenece"})
         }
@@ -123,7 +132,7 @@ router.delete('/:id', auth.chequeaJWT, async function(req, res){
         res.status(200).send({mensaje: "Mensaje eliminado"})
     }
     catch(err){
-        if(mensajeBuscado === undefined || mensajeBuscado === null){
+        if(mensajeBuscado === undefined){
             return res.status(404).send({mensaje: 'No existe un mensaje con ese ID'})
         }
         res.status(500).send({mensaje: "Error"})

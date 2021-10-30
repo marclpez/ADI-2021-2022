@@ -49,7 +49,7 @@ router.get('/:id', async function(req, res) {
     try{
         tweetBuscado = await Tweet.findOne({ _id: req.params.id })
         if(tweetBuscado === null){
-            return res.status(404).send({mensaje: 'nulo'})
+            return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
         }
         console.log(tweetBuscado)
         console.log(localStorage.idUsuario)
