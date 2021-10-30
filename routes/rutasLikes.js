@@ -49,7 +49,7 @@ router.post('/', auth.chequeaJWT, async function(req, res) {
 
         
         //Actualizamos BD al introducir el like
-        await User.findByIdAndUpdate(usuarioBuscado._id, {$push: {'likes': nuevoLike}})
+        await User.findByIdAndUpdate(usuarioBuscado._id, {$push: {'likes': nuevoLike.tweet}})
         nuevoLike.save()
         await Tweet.findByIdAndUpdate(tweetBuscado._id, {$push: {'likes': nuevoLike}})
         

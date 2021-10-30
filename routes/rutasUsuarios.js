@@ -26,7 +26,6 @@ var LocalStorage = require('node-localstorage').LocalStorage,
 localStorage = new LocalStorage('./scratch');
 
 
-//////GET
 router.get('/', async function(req, res) {
     const options = {
         limit: req.query.limit || 2,
@@ -69,7 +68,6 @@ router.get('/:id', async function(req, res) {
     }
 })
 
-//Devuelve los tweets del usuario con :id
 router.get('/:id/tweets', async function(req, res) {
     var usuarioBuscado;
     const options = {
@@ -105,7 +103,7 @@ router.get('/:id/tweets', async function(req, res) {
     }
 })
 
-//Devuelve los tweets a los que un usuario le ha dado like
+
 router.get('/:id/likes', async function(req, res){
     var usuarioBuscado;
     const options = {
@@ -141,7 +139,7 @@ router.get('/:id/likes', async function(req, res){
     }
 })
 
-//Devuelve los seguidores del usuario con :id
+
 router.get('/:id/seguidores', async function(req, res) {
     var usuarioBuscado;
     const options = {
@@ -207,7 +205,7 @@ router.get('/:id/seguidos', async function(req, res){
     }
 });
 
-//Simularia la bandeja de entrada de un usuario
+
 router.get('/:id/imagenes', async function(req, res){
     var usuarioBuscado;
     const options = {
@@ -232,7 +230,7 @@ router.get('/:id/imagenes', async function(req, res){
     }
 })
 
-//////POST
+
 router.post('/', async function(req, res){
     try{
         if(localStorage.idUsuario !== null){
@@ -263,7 +261,7 @@ router.post('/', async function(req, res){
 
 });
 
-//En una app con autentificación basada en Token, el login genera y devuelve el token
+
 router.post('/login', async function(req, res){
     var usuarioBuscado;
 
@@ -275,11 +273,11 @@ router.post('/login', async function(req, res){
         if(iguales){
             var token = auth.creaToken(usuarioBuscado);
             res.header('Location', 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id)
-            auth.guardarDatosLogin(usuarioBuscado._id, usuarioBuscado.nickname, token);
+            auth.guardarDatosLogin(usuarioBuscado._id, usuarioBuscado.nickname, token); //guardamos los datos del usuario logueado en el localStorage
             console.log(localStorage.idUsuario);
             console.log(localStorage.nickname);
             console.log(localStorage.token);
-            res.status(201).send({token: token, mensaje:"Login realizado"})
+            res.status(201).send({mensaje:"Login realizado"})
         }
         else{
             res.status(403).send({mensaje:"Credenciales incorrectas"})

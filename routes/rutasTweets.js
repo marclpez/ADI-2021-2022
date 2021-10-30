@@ -136,7 +136,7 @@ router.delete('/:id', auth.chequeaJWT, async function(req, res){
         }
         await Tweet.deleteOne({ _id: tweetBuscado._id}) //eliminamos el tweet
         //Eliminamos la referencia del tweet a borrar del array de tweets de su autor
-        await User.updateMany({}, {$pull: {likes: tweetBuscado._id}}) //eliminamos el tweet del listado de tweets del autor
+        await User.updateMany({likes: tweetBuscado._id}, {$pull: {likes: tweetBuscado._id}}) //eliminamos el tweet del listado de tweets del autor
         await Like.deleteMany({tweet: tweetBuscado._id}) //elinamos los likes al tweet de la lista de likes
         await User.findOneAndUpdate({ _id: usuarioBuscado._id}, {$pull: {tweets: tweetBuscado._id}}, options) //eliminamos de los usuarios que le han dado like el tweet de su lista de likes
         console.log(tweetBuscado)
