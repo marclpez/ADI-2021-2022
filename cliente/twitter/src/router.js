@@ -1,20 +1,19 @@
 import Vue from 'vue';
 import Router from 'vue-router';
-import Login from '../Login.vue';
-import Logout from '../Logout.vue';
-
+import Login from './views/Login.vue';
+import Logout from './views/Logout.vue';
 
 Vue.use(Router);
 
 export const router = new Router({
     mode: 'history',
-    routes: [
+    routes:[
         {
-            path: '/login',
+            path: '/Login',
             component: Login
         },
         {
-            path: '/logout',
+            path: '/Logout',
             component: Logout
         }
     ]
