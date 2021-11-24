@@ -1,16 +1,13 @@
-import {createApp} from 'vue' //import Vue
+import Vue from 'vue' 
 import App from './App.vue'
-//import {router} from './router'
-//import Vuex from 'vuex';
+import {router} from './router/index'
+import Vuex from 'vuex';
 
 
-//Vue.use(Vuex);
+Vue.use(Vuex);
 
-createApp(App).mount('#app')
 
-/**
 new Vue({
     router,
-    store,
     render: h => h(App)
-}).mount('#app'); */
+}).mount('#app'); 
