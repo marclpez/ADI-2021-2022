@@ -45,6 +45,7 @@ router.get('/', async function(req, res) {
 
 router.get('/:id', async function(req, res) {
     var tweetBuscado;
+    var autor;
 
     try{
         tweetBuscado = await Tweet.findOne({ _id: req.params.id })
@@ -52,8 +53,9 @@ router.get('/:id', async function(req, res) {
             return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
         }
         console.log(tweetBuscado)
-        console.log(localStorage.idUsuario)
-        res.status(200).send(tweetBuscado);
+        autor = await User.findOne({ _id: tweetBuscado.autor })
+        console.log(autor);
+        res.status(200).send({idTweet: tweetBuscado._id, autor: autor.nickname, mensaje: tweetBuscado.mensaje, likes: tweetBuscado.likes});
     }
     catch(err){
         if(tweetBuscado === undefined || tweetBuscado === null){
@@ -84,7 +86,7 @@ router.get('/:id/likes', async function(req, res) {
         if(lista_likes.hasNextPage){
             lista_likes.nextPage = 'http://localhost:3000/twapi/tweets/' + tweetBuscado._id + '/likes?limit=' + options.limit +'&page=' + (parseInt(options.page) + 1)
         }
-        res.status(200).send(lista_likes)
+        res.status(200).send({likes: lista_likes})
     }
     catch(err){
         if(tweetBuscado === undefined || tweetBuscado === null){

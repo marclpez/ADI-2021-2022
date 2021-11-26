@@ -277,10 +277,10 @@ router.post('/login', async function(req, res){
             console.log(localStorage.idUsuario);
             console.log(localStorage.nickname);
             console.log(localStorage.token);
-            res.status(201).send({mensaje:"Login realizado"})
+            res.status(200).send({mensaje:"Login realizado", usuario: usuarioBuscado, token: token})
         }
         else{
-            res.status(403).send({mensaje:"Credenciales incorrectas"})
+            res.status(200).send({mensaje:"Credenciales incorrectas"})
         }
     }
     catch(err){

@@ -47,7 +47,10 @@ router.post('/', auth.chequeaJWT, async function(req, res) {
         })
         console.log(nuevoLike)
 
-        
+        var hayLike = await Like.findOne({usuario: localStorage.idUsuario, tweet: nuevoLike.tweet});
+        if(hayLike){
+            return res.status(400).send({mensaje: "Ya le has dado like a este tweet"})
+        }
         //Actualizamos BD al introducir el like
         await User.findByIdAndUpdate(usuarioBuscado._id, {$push: {'likes': nuevoLike.tweet}})
         nuevoLike.save()
