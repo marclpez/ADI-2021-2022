@@ -233,9 +233,10 @@ router.get('/:id/imagenes', async function(req, res){
 
 router.post('/', async function(req, res){
     try{
+        /**
         if(localStorage.idUsuario !== null){
             return res.status(200).send({mensaje: "Ya estas logueado"})
-        }
+        }*/
         var passwordEncriptada = bcrypt.hashSync(req.body.password, 10)
     
     
