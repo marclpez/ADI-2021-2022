@@ -16,11 +16,15 @@
           <input type="submit" class="fadeIn fourth" value="Log In">
         </form>
 
+
         <!-- Error credentials -->
         <div class="alert alert-danger" role="alert" v-if="error">
           {{error_msg}}
         </div>
-
+        <!-- No tienes cuenta -->
+        <div id="formFooter">
+          <a class="underlineHover" href="/registro">¿No tienes cuenta?</a>
+        </div>
       </div>
     </div>
   </div>
@@ -30,9 +34,6 @@
 import axios from 'axios';
 export default {
   name: 'Login',
-  components: {
-
-  },
   data: function(){
     return {
       username: "",
@@ -51,17 +52,23 @@ export default {
         .then(result => {
           console.log(result);
           if(result.data.mensaje == "Login realizado"){
-            localStorage.idUsuario = result.data.usuario._id;
+            /*localStorage.idUsuario = result.data.usuario._id;
             localStorage.username = this.username;
             localStorage.password = this.password;
             localStorage.email = result.data.usuario.email;
-            localStorage.token = result.data.token;
-            this.$router.push('perfil');
+            localStorage.token = result.data.token;*/
+            this.$store.state.idUser = result.data.usuario._id;
+            this.$store.state.username = this.username;
+            this.$store.state.password = this.password;
+            this.$store.commit('setAuthentication', true)
+            this.$router.push('/perfil');
           }
           else{
             this.error = true;
             this.error_msg = result.data.mensaje;
           }
+        }).catch((err) => {
+          console.log(err)
         })
     }
   }

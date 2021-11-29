@@ -3,13 +3,13 @@
         
         <b-navbar toggleable="lg" type="dark" variant="info">
             <img src="../assets/logo.png" width="50px" height="50px">
-            <b-navbar-brand v-href="tweets()">TWITTER</b-navbar-brand>
+            <b-navbar-brand href="#">TWITTER</b-navbar-brand>
 
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
             <b-collapse id="nav-collapse" is-nav>
             <b-navbar-nav>
-                <b-nav-item v-on:click="tweets()">Muro principal</b-nav-item>
+                <b-nav-item href="#">Muro principal</b-nav-item>
                 <b-nav-item href="#tustweets">Mis tweets</b-nav-item>
                 <b-nav-item v-on:click="seguidores()">Seguidores</b-nav-item>
                 <b-nav-item v-on:click="seguidos()">Seguidos</b-nav-item>
@@ -20,7 +20,7 @@
                 <b-nav-item-dropdown right>
                 <!-- Using 'button-content' slot -->
                 <template #button-content>
-                    <em>{{username}}</em>
+                    <em>{{$store.state.username}}</em>
                 </template>
                 <b-dropdown-item v-on:click="detallesdelperfil()">Profile</b-dropdown-item>
                 <b-dropdown-item v-on:click="logout()">Sign Out</b-dropdown-item>
@@ -32,25 +32,30 @@
 </template>
 
 <script>
+import axios from 'axios';
+
 export default {
   name: 'Menu',
   data: function(){
     return {
-      username: localStorage.username
+      username: this.$store.state.username
     }
   },
   methods:{
       logout(){
-          localStorage.clear();
-          this.$router.push('home')
-          //TO DO
-          //tendremos que devolverle al muro principal de tweets y en vez de mostrarle su nombre de usuario mostrar una opcion de inicio de sesión
+        axios.post('http://localhost:3000/twapi/usuarios/logout')
+        .then(result => {
+          console.log(result);
+          if(result.data.mensaje == "Sesión cerrada"){
+            this.$router.push('/home');
+          }
+        }).catch((err) => {
+          console.log(err)
+        })
+          this.$router.push('/')
       },
       detallesdelperfil(){
           this.$router.push('perfil') 
-      },
-      tweets(){
-          this.$router.push('tweets') 
       },
       seguidores(){
           this.$router.push('seguidores')

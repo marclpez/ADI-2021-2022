@@ -50,12 +50,14 @@ export default{
         Header
     },
     mounted: function(){
-        let direccion = "http://localhost:3000/twapi/usuarios/" + localStorage.idUsuario + "/tweets?page=" + this.pagina;
+        let direccion = "http://localhost:3000/twapi/usuarios/" + this.$store.state.idUser + "/tweets?page=" + this.pagina;
         axios.get(direccion)
             .then(result => {
                 console.log(result)
                 this.listaTweets = result.data.docs;
                 this.totalTweets = result.data.totalDocs;
+            }).catch((err) => {
+                console.log(err)
             })
     },
     methods:{

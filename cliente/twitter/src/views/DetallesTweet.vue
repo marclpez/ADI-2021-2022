@@ -89,7 +89,7 @@ export default{
             this.$router.push('/tweets/' + id + '/likes');
         },
         volver(){
-            this.$router.push("/tweets")
+            //this.$router.push("/tweets")
         }
     }
 }

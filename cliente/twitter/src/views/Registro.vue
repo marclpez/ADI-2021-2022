@@ -14,7 +14,7 @@
           <input type="text" id="email" class="fadeIn third" name="login" placeholder="Email" v-model="email">
           <input type="text" id="login" class="fadeIn second" name="login" placeholder="Username" v-model="username">
           <input type="password" id="password" class="fadeIn third" name="login" placeholder="Password" v-model="password">
-          <input type="submit" class="fadeIn fourth" value="Registro">
+          <input type="submit" class="fadeIn fourth" value="Log Up">
         </form>
 
         <div class="alert alert-success" role="alert" v-if="ok">

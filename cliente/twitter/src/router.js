@@ -7,9 +7,9 @@ import DetallesTweet from './views/DetallesTweet.vue';
 import LikesTweet from './views/LikesTweet.vue';
 import Home from './views/Home.vue';
 import Registro from './views/Registro.vue';
-import Tweets from './views/Tweets.vue';
 import Seguidores from './views/Seguidores.vue';
 import Seguidos from './views/Seguidos.vue';
+import store from './store'
 
 Vue.use(Router);
 
@@ -18,8 +18,9 @@ export const router = new Router({
     routes:[
         {
             path: '/',
-            name: 'home',
-            component: Home
+            redirect: {
+                name: 'home'
+            }
         },
         {
             path: '/home',
@@ -34,7 +35,17 @@ export const router = new Router({
         {
             path: '/perfil',
             name: 'perfil',
-            component: Perfil
+            component: Perfil,
+            //Proteccion de rutas
+            beforeEnter: (to, from, next) => {
+                if(store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Debes loguearte antes')
+                    next('/login');
+                }
+            }
         },
         {
             path: '/tweets/:id',
@@ -47,27 +58,22 @@ export const router = new Router({
             component: LikesTweet
         },
         {
-            path: '/Logout',
+            path: '/logout',
             name: 'logout',
             component: Logout
         },
         {
-            path: '/Registro',
+            path: '/registro',
             name: 'registro',
             component: Registro
         },
         {
-            path: '/Tweets',
-            name: 'tweets',
-            component: Tweets
-        },
-        {
-            path: '/Seguidores',
+            path: '/seguidores',
             name: 'seguidores',
             component: Seguidores
         },
         {
-            path: '/Seguidos',
+            path: '/seguidos',
             name: 'seguidos',
             component: Seguidos
         }
