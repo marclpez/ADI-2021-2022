@@ -293,7 +293,7 @@ router.post('/login', async function(req, res){
     }
  });
 
- router.post('/logout', auth.chequeaJWT, async function(req, res){
+router.post('/logout', auth.chequeaJWT, async function(req, res){
     localStorage.clear();
     res.status(200).send({mensaje: "Sesión cerrada"});
  });
