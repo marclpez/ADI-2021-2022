@@ -14,8 +14,16 @@ Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 Vue.use(VueAxios, Axios)
 
+
 new Vue({
   store,
+  created(){
+    console.log(localStorage.token)
+    if(localStorage.token !== null){
+      this.$store.state.logueado = true;
+    }
+    console.log(this.$store.state.logueado)
+  },
   router,
   render: h => h(App),
 }).$mount('#app')

@@ -8,12 +8,16 @@
             <table class="table">
                 <thead>
                     <tr>
+                        <th scope="col" align="center">Tweet</th>
                         <th scope="col" align="center">Usuario</th>
+                        <th scope="col" align="center">Mensaje</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="usu in usuarios" :key="usu._id">
-                        <td>{{usu._id}}</td>
+                    <tr v-for="tweet in tweets" :key="tweet._id">
+                        <td>{{tweet._id}}
+                        <td>{{tweet.autor}}</td>
+                        <td>{{tweet.mensaje}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -27,21 +31,23 @@ import Header from '@/components/Menu.vue';
 import axios from 'axios';
 
 export default{
-    name: "Seguidos",
+    name: "Tweets",
     data: function(){
         return {
-            usuario: localStorage.username,
-            usuarios: null
+            tweets: null,
+            pagina: 1,
         }
     },
     components:{
         Header
     },
     mounted: function(){
-        this.idTweet = this.$route.params.id;
-        axios.get('http://localhost:3000/twapi/usuarios/' + localStorage.idUsuario + '/seguidores')
+        axios.get('http://localhost:3000/twapi/tweets?page=' + this.pagina)
             .then(result => {
-                this.usuarios = result.data.docs._id;
+                console.log(result)
+                this.tweets = result.data.docs;
+            }).catch((err) => {
+                console.log(err);
             })
     }
 

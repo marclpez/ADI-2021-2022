@@ -52,23 +52,22 @@ export default {
         .then(result => {
           console.log(result);
           if(result.data.mensaje == "Login realizado"){
-            /*localStorage.idUsuario = result.data.usuario._id;
-            localStorage.username = this.username;
-            localStorage.password = this.password;
-            localStorage.email = result.data.usuario.email;
-            localStorage.token = result.data.token;*/
-            this.$store.state.idUser = result.data.usuario._id;
-            this.$store.state.username = this.username;
-            this.$store.state.password = this.password;
-            this.$store.commit('setAuthentication', true)
+            localStorage.token = result.data.token;
+            this.$store.commit('setAuthentication', true);
+            this.$store.commit('setIdUser', result.data.usuario._id);
+            this.$store.commit('setUsername', this.username);
+            this.$store.commit('setEmail', result.data.usuario.email);
+            this.$store.commit('setPassword', this.password);
             this.$router.push('/perfil');
           }
           else{
             this.error = true;
-            this.error_msg = result.data.mensaje;
+            this.error_msg = "Credenciales incorrectas";
           }
         }).catch((err) => {
           console.log(err)
+          this.error = true;
+          this.error_msg = "Credenciales incorrectas";
         })
     }
   }

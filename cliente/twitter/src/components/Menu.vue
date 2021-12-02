@@ -9,7 +9,7 @@
 
             <b-collapse id="nav-collapse" is-nav>
             <b-navbar-nav>
-                <b-nav-item href="#">Muro principal</b-nav-item>
+                <b-nav-item v-on:click="mostrarMuro()">Muro principal</b-nav-item>
                 <b-nav-item href="#tustweets">Mis tweets</b-nav-item>
                 <b-nav-item v-on:click="seguidores()">Seguidores</b-nav-item>
                 <b-nav-item v-on:click="seguidos()">Seguidos</b-nav-item>
@@ -20,7 +20,7 @@
                 <b-nav-item-dropdown right>
                 <!-- Using 'button-content' slot -->
                 <template #button-content>
-                    <em>{{$store.state.username}}</em>
+                    <em>{{username}}</em>
                 </template>
                 <b-dropdown-item v-on:click="detallesdelperfil()">Profile</b-dropdown-item>
                 <b-dropdown-item v-on:click="logout()">Sign Out</b-dropdown-item>
@@ -47,6 +47,7 @@ export default {
         .then(result => {
           console.log(result);
           if(result.data.mensaje == "Sesión cerrada"){
+            this.$store.commit('logout');
             this.$router.push('/home');
           }
         }).catch((err) => {
@@ -56,6 +57,9 @@ export default {
       },
       detallesdelperfil(){
           this.$router.push('perfil') 
+      },
+      mostrarMuro(){
+        this.$router.push('tweets')
       },
       seguidores(){
           this.$router.push('seguidores')

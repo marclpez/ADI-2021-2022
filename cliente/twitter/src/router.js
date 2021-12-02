@@ -9,6 +9,7 @@ import Home from './views/Home.vue';
 import Registro from './views/Registro.vue';
 import Seguidores from './views/Seguidores.vue';
 import Seguidos from './views/Seguidos.vue';
+import Tweets from './views/Tweets.vue'
 import store from './store'
 
 Vue.use(Router);
@@ -50,17 +51,62 @@ export const router = new Router({
         {
             path: '/tweets/:id',
             name: 'DetallesTweet',
-            component: DetallesTweet
+            component: DetallesTweet,
+            //Proteccion de rutas
+            beforeEnter: (to, from, next) => {
+                if(store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Debes loguearte antes')
+                    next('/login');
+                }
+            }
         },
         {
             path: '/tweets/:id/likes',
             name: 'LikesTweet',
-            component: LikesTweet
+            component: LikesTweet,
+            //Proteccion de rutas
+            beforeEnter: (to, from, next) => {
+                if(store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Debes loguearte antes')
+                    next('/login');
+                }
+            }
+        },
+        {
+            path: '/tweets',
+            name: 'Tweets',
+            component: Tweets,
+            //Proteccion de rutas
+            beforeEnter: (to, from, next) => {
+                if(store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Debes loguearte antes')
+                    next('/login');
+                }
+            }
         },
         {
             path: '/logout',
             name: 'logout',
-            component: Logout
+            component: Logout,
+            //Proteccion de rutas
+            beforeEnter: (to, from, next) => {
+                if(store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Debes loguearte antes')
+                    next('/login');
+                }
+            }
         },
         {
             path: '/registro',
@@ -70,12 +116,32 @@ export const router = new Router({
         {
             path: '/seguidores',
             name: 'seguidores',
-            component: Seguidores
+            component: Seguidores,
+            //Proteccion de rutas
+            beforeEnter: (to, from, next) => {
+                if(store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Debes loguearte antes')
+                    next('/login');
+                }
+            }
         },
         {
             path: '/seguidos',
             name: 'seguidos',
-            component: Seguidos
+            component: Seguidos,
+            //Proteccion de rutas
+            beforeEnter: (to, from, next) => {
+                if(store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Debes loguearte antes')
+                    next('/login');
+                }
+            }
         }
     ]
 })
