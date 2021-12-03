@@ -20,6 +20,7 @@ new Vue({
   created(){
     console.log(localStorage.token)
     if(localStorage.token !== null && localStorage.token !== undefined){
+      this.axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.token;
       this.$store.state.logueado = true;
     }
     else{

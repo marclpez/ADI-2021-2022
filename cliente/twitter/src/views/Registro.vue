@@ -17,9 +17,6 @@
           <input type="submit" class="fadeIn fourth" value="Log Up">
         </form>
 
-        <div class="alert alert-success" role="alert" v-if="ok">
-            Usuario creado
-        </div>
         <!-- Error -->
         <div class="alert alert-danger" role="alert" v-if="error">
           {{error_msg}}
@@ -51,7 +48,6 @@ export default {
       password: "",
       email: "",
       error: false,
-      ok: false,
       error_msg: ""
     }
   },
@@ -66,7 +62,8 @@ export default {
       .then(result => {
           console.log(result);
           if(result.data.mensaje == "Guardado el usuario"){
-            this.ok = true;
+            alert("Cuenta creada, pulsa OK para loguearte en la web");
+            this.$router.push('/login');
           }
           else{
             this.error = true;

@@ -1,14 +1,15 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Login from './views/Login.vue';
-import Perfil from './views/Perfil.vue';
+import MisTweets from './views/MisTweets.vue';
 import DetallesTweet from './views/DetallesTweet.vue';
 import LikesTweet from './views/LikesTweet.vue';
 import Home from './views/Home.vue';
 import Registro from './views/Registro.vue';
 import Seguidores from './views/Seguidores.vue';
 import Seguidos from './views/Seguidos.vue';
-import Tweets from './views/Tweets.vue'
+import DetallesUsuario from './views/DetallesUsuario.vue';
+import NuevoPost from './views/NuevoPost.vue'
 import store from './store'
 
 Vue.use(Router);
@@ -43,9 +44,39 @@ export const router = new Router({
             }
         },
         {
-            path: '/perfil',
-            name: 'perfil',
-            component: Perfil,
+            path: '/usuarios/:id',
+            name: 'detallesUsuario',
+            component: DetallesUsuario,
+            //Proteccion de rutas
+            beforeEnter: (to, from, next) => {
+                if(store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Debes loguearte antes')
+                    next('/login');
+                }
+            }
+        },
+        {
+            path: '/misTweets',
+            name: 'misTweets',
+            component: MisTweets,
+            //Proteccion de rutas
+            beforeEnter: (to, from, next) => {
+                if(store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Debes loguearte antes')
+                    next('/login');
+                }
+            }
+        },
+        {
+            path: '/nuevoPost',
+            name: 'nuevoPost',
+            component: NuevoPost,
             //Proteccion de rutas
             beforeEnter: (to, from, next) => {
                 if(store.state.logueado){
@@ -76,21 +107,6 @@ export const router = new Router({
             path: '/tweets/:id/likes',
             name: 'LikesTweet',
             component: LikesTweet,
-            //Proteccion de rutas
-            beforeEnter: (to, from, next) => {
-                if(store.state.logueado){
-                    next()
-                }
-                else{
-                    alert('Debes loguearte antes')
-                    next('/login');
-                }
-            }
-        },
-        {
-            path: '/tweets',
-            name: 'Tweets',
-            component: Tweets,
             //Proteccion de rutas
             beforeEnter: (to, from, next) => {
                 if(store.state.logueado){

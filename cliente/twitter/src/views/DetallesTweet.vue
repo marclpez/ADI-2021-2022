@@ -62,10 +62,11 @@ export default{
         this.idTweet = this.$route.params.id;
         axios.get('http://localhost:3000/twapi/tweets/' + this.idTweet)
             .then(result => {
-                this.autor = result.data.autor;
+                console.log(result)
+                this.autor = result.data.autor.nickname;
                 this.mensaje = result.data.mensaje;
                 this.likes = result.data.likes.length;
-            })
+            }).catch((err) => console.log(err))
     },
     methods: {
         nuevoLike(id){
@@ -76,7 +77,12 @@ export default{
                 .then(result => {
                     console.log(result);
                     if(result.status == 201){
+                        this.likes++;
                         this.ok = true;
+                    }
+                    else if(result.data.mensaje == 'Ya le has dado like a este tweet'){
+                        this.ok = false;
+                        this.error = true;
                     }
                 })
                 .catch(err => {
@@ -89,7 +95,7 @@ export default{
             this.$router.push('/tweets/' + id + '/likes');
         },
         volver(){
-            //this.$router.push("/tweets")
+            this.$router.push("/home")
         }
     }
 }

@@ -3,7 +3,7 @@
         <Header/>
         <br/>
         <div class="container">
-            <h4 align="left">Algunos de nuestros tweets:</h4>
+            <h3 align="left"> <b> Tweets posteados por los usuarios de nuestra aplicación: </b></h3>
         </div>
         <br/>
         <div class="container">

@@ -12,26 +12,20 @@ var secret = '123456'
 //Middleware: lo pondremos ANTES de procesar cualquier reqición que requiera autentificación
 async function chequeaJWT(req, res, next) {
     var token = localStorage.token;
-    console.log(localStorage.nickname);
-    console.log(localStorage.idUsuario);
+    console.log(req.headers)
     console.log(token)
 
     try{
-        jwt.decode(token, secret) //si no lanza excepcion pasamos al siguiente middleware
-        var payload = token.split(".")[1]
-        var payloadDecoded = Buffer.from(payload, "Base64").toString() //decodificamos el payload
-        var payloadDecodedtoJSON = JSON.parse(payloadDecoded); //lo pasamos a jSON
-        console.log(payloadDecodedtoJSON)
-        var idUsuario = payloadDecodedtoJSON.idUsuario //accedemos al campo del json que queremos
-        console.log(idUsuario)
-
-        if(localStorage.idUsuario == idUsuario){
+        var tokenRecibido = req.headers.authorization.split(' ')[1];
+        console.log("token recibido: " + tokenRecibido)
+        if(localStorage.token == tokenRecibido){
             return next();
         } 
-        res.status(403).send({mensaje: "no tienes permisos"});
+        res.status(401).send({mensaje: "no tienes permisos"});
     }
     catch{
-        res.status(403).send({mensaje: "no tienes permisos"})
+        console.log("ha petado")
+        res.status(401).send({mensaje: "no tienes permisos"})
     }
 }
 
@@ -42,10 +36,10 @@ function creaToken(usuario){
     }
     return jwt.encode(payload, secret);
 }
-function guardarDatosLogin(id, nickname, token){
+function guardarDatos(id, nickname, token){
     localStorage.setItem("idUsuario", id);
     localStorage.setItem("nickname", nickname)
     localStorage.setItem("token", token);
 }
 
-module.exports = {chequeaJWT, creaToken, guardarDatosLogin}
+module.exports = {chequeaJWT, creaToken, guardarDatos}

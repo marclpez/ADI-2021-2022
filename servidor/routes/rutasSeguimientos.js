@@ -44,7 +44,7 @@ router.post('/', auth.chequeaJWT, async function (req, res) {
         if(localStorage.nickname === seguido.nickname){ //para evitar seguirse a uno mismo
             return res.status(200).send({mensaje: 'No puedes seguirte a ti mismo'})
         }
-        else if(yaExisteSeguimiento){
+        else if(yaExisteSeguimiento !== null && yaExisteSeguimiento !== undefined){
             return res.status(200).send({mensaje: 'Ya sigues a este usuario'})
         }
         else if((seguidor !== null && seguido !== null)){
@@ -64,6 +64,7 @@ router.post('/', auth.chequeaJWT, async function (req, res) {
             res.status(201).send({mensaje: "Guardado el seguimiento", seguimiento: nuevoSeguimiento})            
         }
         else{
+
             if(seguidor === null){
                 return res.status(404).send({mensaje: 'No existe el usuario seguidor'})
             }
@@ -71,6 +72,7 @@ router.post('/', auth.chequeaJWT, async function (req, res) {
         }
     }
     catch(err){
+        console.log("entro")
         if(seguidor === undefined){
             return res.status(404).send({mensaje: 'No existe el usuario seguidor'})
         }

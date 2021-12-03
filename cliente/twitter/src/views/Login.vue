@@ -56,12 +56,13 @@ export default {
           console.log(result);
           if(result.data.mensaje == "Login realizado"){
             localStorage.token = result.data.token;
+            this.axios.defaults.headers.common['Authorization'] = 'Bearer ' + localStorage.token;
             this.$store.commit('setAuthentication', true);
             this.$store.commit('setIdUser', result.data.usuario._id);
             this.$store.commit('setUsername', this.username);
             this.$store.commit('setEmail', result.data.usuario.email);
             this.$store.commit('setPassword', this.password);
-            this.$router.push('/perfil');
+            this.$router.push('/misTweets');
           }
           else{
             this.error = true;

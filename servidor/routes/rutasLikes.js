@@ -42,14 +42,14 @@ router.post('/', auth.chequeaJWT, async function(req, res) {
             return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
         }
         var nuevoLike = new Like({
-            usuario: usuarioBuscado, //Habra que verificar que se introduce un id de un usuario de la BD
+            usuario: usuarioBuscado.nickname, //Habra que verificar que se introduce un id de un usuario de la BD
             tweet: tweetBuscado
         })
         console.log(nuevoLike)
 
-        var hayLike = await Like.findOne({usuario: localStorage.idUsuario, tweet: nuevoLike.tweet});
+        var hayLike = await Like.findOne({usuario: localStorage.nickname, tweet: nuevoLike.tweet});
         if(hayLike){
-            return res.status(400).send({mensaje: "Ya le has dado like a este tweet"})
+            return res.status(200).send({mensaje: "Ya le has dado like a este tweet"})
         }
         //Actualizamos BD al introducir el like
         await User.findByIdAndUpdate(usuarioBuscado._id, {$push: {'likes': nuevoLike.tweet}})
@@ -79,13 +79,13 @@ router.delete('/:id', auth.chequeaJWT, async function(req, res){
     try{
         likeBuscado = await Like.findOneAndDelete({ _id: req.params.id})
         console.log(likeBuscado)
-        if(likeBuscado.usuario != localStorage.idUsuario){
+        if(likeBuscado.usuario != localStorage.nickname){
             return res.status(401).send({mensaje: "No puedes eliminar un like que no has dado tú"})
         }
         //Eliminamos la referencia del like a borrar del array de likes de su tweet relacionado
         await Tweet.findOneAndUpdate({ _id: likeBuscado.tweet}, {$pull: {likes: likeBuscado._id}}, options)
         //Eliminamos la referencia del like a borrar del array de likes de su usuario relacionado
-        await User.findOneAndUpdate({ _id: likeBuscado.usuario}, {$pull: {likes: likeBuscado.tweet}}, options)
+        await User.findOneAndUpdate({ nickname: likeBuscado.usuario}, {$pull: {likes: likeBuscado.tweet}}, options)
         
         res.status(200).send({mensaje: "Like eliminado"})
     }

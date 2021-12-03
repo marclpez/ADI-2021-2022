@@ -68,10 +68,27 @@ router.get('/:id', async function(req, res) {
     }
 })
 
+router.get('/nickname/:nickname', async function(req, res) {
+    var usuarioBuscado;
+
+    try{
+        console.log(req)
+        usuarioBuscado = await User.findOne({ nickname: req.params.nickname })
+        console.log(usuarioBuscado)
+        res.status(200).send(usuarioBuscado);
+    }
+    catch(err){
+        if(usuarioBuscado === undefined || usuarioBuscado === null){
+            return res.status(404).send({mensaje: 'No existe un usuario con ese nickname'})
+        }
+        res.status(500).send({mensaje: 'Error al realizar la petición'}) 
+    }
+})
+
 router.get('/:id/tweets', async function(req, res) {
     var usuarioBuscado;
     const options = {
-        limit: req.query.limit || 3,
+        limit: req.query.limit || 10,
         page: req.query.page || 1,
     }   
 
@@ -84,7 +101,7 @@ router.get('/:id/tweets', async function(req, res) {
 
         var lista_tweets = await Tweet.paginate({autor: usuarioBuscado.nickname}, options)
         if(lista_tweets.docs.length === 0){ //si el array de docs que hay en lista_tweets al paginar esta vacio es que no hay tweets almacenados
-            return res.status(404).send({mensaje: 'No hay tweets'})
+            return res.status(200).send({mensaje: 'Este usuario no tiene tweets'})
         }
         if(lista_tweets.hasPrevPage){
             lista_tweets.prevPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/tweets?limit=' + options.limit +'&page=' + (options.page - 1)
@@ -118,7 +135,7 @@ router.get('/:id/likes', async function(req, res){
             return res.status(200).send({mensaje: "Este usuario no ha dado like a ningún tweet"})
         }
 
-        var lista_likes = await Like.paginate({usuario: usuarioBuscado._id}, options)
+        var lista_likes = await Like.paginate({usuario: usuarioBuscado.nickname}, options)
         if(lista_likes.docs.length === 0){ //si el array de docs que hay en lista_tweets al paginar esta vacio es que no hay tweets almacenados
             return res.status(404).send({mensaje: 'No hay tweets'})
         }
@@ -267,9 +284,7 @@ router.post('/login', async function(req, res){
         if(iguales){
             var token = auth.creaToken(usuarioBuscado);
             res.header('Location', 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id)
-            auth.guardarDatosLogin(usuarioBuscado._id, usuarioBuscado.nickname, token); //guardamos los datos del usuario logueado en el localStorage
-            console.log(localStorage.idUsuario);
-            console.log(localStorage.nickname);
+            auth.guardarDatos(usuarioBuscado._id, usuarioBuscado.nickname, token); //guardamos los datos del usuario logueado en el localStorage
             console.log(localStorage.token);
             res.status(200).send({mensaje:"Login realizado", usuario: usuarioBuscado, token: token})
         }

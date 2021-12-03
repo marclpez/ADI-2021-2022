@@ -3,25 +3,28 @@
         <Header/>
         <br/>
         <div class="container">
-            <h3> <b>Seguidores: </b></h3>
+            <h3> <b>Te sigue: </b></h3>
             <br/>
-            <table class="table">
+            <table class="table" v-if="noTieneSeguidores == false">
                 <thead>
                     <tr>
-                        <th scope="col" align="center">Tweet</th>
+                        <th scope="col" align="center">#</th>
                         <th scope="col" align="center">Usuario</th>
-                        <th scope="col" align="center">Mensaje</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="tweet in tweets" :key="tweet._id">
-                        <td>{{tweet._id}}
-                        <td>{{tweet.autor}}</td>
-                        <td>{{tweet.mensaje}}</td>
+                    <tr v-for="(seguimiento, index) in listaSeguimientos" :key="index">
+                        <td>{{index+1}}</td>
+                        <td>{{seguimiento.seguidor}}</td>
+                        <td align="right">
+                            <button type="button" class="btn btn-primary" style="margin-left: 10px" v-on:click="detallesUsuario(seguimiento.seguidor)">Visitar perfil</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
-            
+            <div class="alert alert-danger" role="alert" v-else>
+                No te sigue nadie todavía
+            </div>
         </div>
     </div>
 </template>
@@ -31,26 +34,42 @@ import Header from '@/components/Menu.vue';
 import axios from 'axios';
 
 export default{
-    name: "Tweets",
+    name: "Seguidos",
     data: function(){
         return {
-            tweets: null,
-            pagina: 1,
+            listaSeguimientos: null,
+            noTieneSeguidores: false
         }
     },
     components:{
         Header
     },
-    mounted: function(){
-        axios.get('http://localhost:3000/twapi/tweets?page=' + this.pagina)
+    mounted: function(){    
+        let direccion = "http://localhost:3000/twapi/usuarios/" + this.$store.state.idUsuario + "/seguidores";
+        axios.get(direccion)
             .then(result => {
                 console.log(result)
-                this.tweets = result.data.docs;
+                this.listaSeguimientos = result.data.docs;
+                if(result.data.mensaje == 'El usuario no tiene seguidores'){
+                    this.noTieneSeguidores = true;
+                }
             }).catch((err) => {
-                console.log(err);
+                console.log(err)
             })
+    },
+    methods: {
+        detallesUsuario(nicknameUsuario){
+            let direccion = "http://localhost:3000/twapi/usuarios/nickname/" + nicknameUsuario;
+            axios.get(direccion)
+                .then(result => {
+                    console.log(result)
+                    var idUsuario = result.data._id;
+                    this.$router.push('/usuarios/' + idUsuario)
+                }).catch((err) => {
+                    console.log(err)
+                })
+        }
     }
-
 
 }
 </script>
