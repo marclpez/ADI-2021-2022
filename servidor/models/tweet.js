@@ -8,7 +8,7 @@ const mongoosePaginate = require('mongoose-paginate-v2')
 
 var tweetSchema = new Schema({
     mensaje: String,
-    autor: {type: Schema.ObjectId, ref: 'User'},
+    autor: String,
     likes: [{type: Schema.ObjectId, ref: 'Like'}]
 },
 {

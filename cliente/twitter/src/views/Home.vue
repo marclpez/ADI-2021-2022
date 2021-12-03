@@ -1,14 +1,7 @@
 <template>
     <div>
+        <Header/>
         <br/>
-        <div class="header">
-            <h1>Twitter</h1>
-        </div>
-        <div id="cuerpo">
-            <button v-on:click="login()" class="btn btn-primary btn-circle btn-xl">Login</button>
-            <img src="../assets/logo.png" width="170px" height="170px">
-            <button v-on:click="registro()" class="btn btn-primary btn-circle btn-xl" >Registro</button>
-        </div>
         <div class="container">
             <h4 align="left">Algunos de nuestros tweets:</h4>
         </div>
@@ -36,8 +29,12 @@
 
 <script>
 import axios from 'axios';
+import Header from '../components/Menu.vue'
 export default {
   name: 'Home',
+  components:{
+      Header
+  },
   data: function(){
       return{
           listaTweets: null
@@ -52,10 +49,10 @@ export default {
   },
   methods:{
       login(){
-          this.$router.push('login')
+          this.$router.push('/login')
       },
       registro(){
-          this.$router.push('registro')
+          this.$router.push('/registro')
       }
   }
 }

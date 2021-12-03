@@ -6,8 +6,8 @@ const User = require('./user');
 const mongoosePaginate = require('mongoose-paginate-v2')
 
 var seguimientoSchema = new Schema({
-    seguidor: {type: Schema.ObjectId, ref: 'User'}, 
-    seguido: {type: Schema.ObjectId, ref: 'User'}
+    seguidor: {type: String}, 
+    seguido: {type: String}
 },
 {
     versionKey: false

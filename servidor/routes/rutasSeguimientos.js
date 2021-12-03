@@ -20,6 +20,10 @@ router.get('/:id', async function(req, res) {
 
     try{
         seguimientoBuscado = await Seguimiento.findOne({ _id: req.params.id })
+
+        if(seguimientoBuscado === undefined || seguimientoBuscado === null){
+            return res.status(200).send({mensaje: 'No existe un seguimiento con ese ID'})
+        }
         res.status(200).send(seguimientoBuscado)
     }
     catch(err){
@@ -33,21 +37,26 @@ router.get('/:id', async function(req, res) {
 router.post('/', auth.chequeaJWT, async function (req, res) {
     try{
         var seguidor = await User.findOne({_id: localStorage.idUsuario});
-        var seguido = await User.findOne({_id: req.body.seguido});
-
+        var seguido = await User.findOne({nickname: req.body.seguido});
+        var yaExisteSeguimiento = await Seguimiento.findOne({seguidor: seguidor.nickname, seguido: seguido.nickname})
+        
+        //seguidor.nickname === ...
         if(localStorage.nickname === seguido.nickname){ //para evitar seguirse a uno mismo
-            return res.status(400).send({mensaje: 'No puedes seguirte a ti mismo'})
+            return res.status(200).send({mensaje: 'No puedes seguirte a ti mismo'})
+        }
+        else if(yaExisteSeguimiento){
+            return res.status(200).send({mensaje: 'Ya sigues a este usuario'})
         }
         else if((seguidor !== null && seguido !== null)){
             var nuevoSeguimiento = new Seguimiento({
-                seguidor: seguidor,
-                seguido: seguido
+                seguidor: seguidor.nickname,
+                seguido: seguido.nickname
             })
             console.log(nuevoSeguimiento)
             await nuevoSeguimiento.save()
     
-            seguidor.seguidos.push(seguido);
-            seguido.seguidores.push(seguidor);
+            seguidor.seguidos.push(seguido.nickname);
+            seguido.seguidores.push(seguidor.nickname);
             await seguidor.save();
             await seguido.save();
     
@@ -56,17 +65,17 @@ router.post('/', auth.chequeaJWT, async function (req, res) {
         }
         else{
             if(seguidor === null){
-                return res.status(404).send({mensaje: 'No existe un usuario con ese ID (seguidor)'})
+                return res.status(404).send({mensaje: 'No existe el usuario seguidor'})
             }
-            res.status(404).send({mensaje: 'No existe un usuario con ese ID (seguido)'})
+            res.status(404).send({mensaje: 'No existe el usuario seguido'})
         }
     }
     catch(err){
         if(seguidor === undefined){
-            return res.status(404).send({mensaje: 'No existe un usuario con ese ID (seguidor)'})
+            return res.status(404).send({mensaje: 'No existe el usuario seguidor'})
         }
         if(seguido === undefined){
-            return res.status(404).send({mensaje: 'No existe un usuario con ese ID (seguido)'})
+            return res.status(404).send({mensaje: 'No existe el usuario seguido'})
         }
         res.status(500).send({mensaje: "Error"})
     }
@@ -84,13 +93,13 @@ router.delete('/:id', auth.chequeaJWT, async function(req, res){
 
         if(seguimientoBuscado !== null){
             console.log(seguimientoBuscado)
-            if(seguimientoBuscado.seguidor != localStorage.idUsuario && seguimientoBuscado.seguido != localStorage.idUsuario){
+            if(seguimientoBuscado.seguidor != localStorage.nickname && seguimientoBuscado.seguido != localStorage.nickname){
                 return res.status(401).send({mensaje: "No puedes eliminar un seguimiento que no has realizado tú"})
             }
             //Eliminamos la referencia del seguimiento a borrar del array de seguidos del usuario seguidor en el seguimiento
-            await User.findOneAndUpdate({ _id: seguimientoBuscado.seguidor}, {$pull: {seguidos: seguimientoBuscado.seguido}}, options)
+            await User.findOneAndUpdate({ nickname: seguimientoBuscado.seguidor}, {$pull: {seguidos: seguimientoBuscado.seguido}}, options)
             //Eliminamos la referencia del seguimiento a borrar del array de seguidores del usuario seguido en el seguimiento
-            await User.findOneAndUpdate({ _id: seguimientoBuscado.seguido}, {$pull: {seguidores: seguimientoBuscado.seguidor}}, options)
+            await User.findOneAndUpdate({ nickname: seguimientoBuscado.seguido}, {$pull: {seguidores: seguimientoBuscado.seguidor}}, options)
             
             return res.status(200).send({mensaje: "Seguimiento eliminado"})
         }

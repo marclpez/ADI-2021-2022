@@ -19,8 +19,11 @@ new Vue({
   store,
   created(){
     console.log(localStorage.token)
-    if(localStorage.token !== null){
+    if(localStorage.token !== null && localStorage.token !== undefined){
       this.$store.state.logueado = true;
+    }
+    else{
+      this.$store.state.logueado = false;
     }
     console.log(this.$store.state.logueado)
   },

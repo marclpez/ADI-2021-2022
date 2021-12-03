@@ -3,7 +3,7 @@
         <Header/>
         <br/>
         <div class="container">
-            <h3> <b>Tweets de tus seguidos: </b></h3>
+            <h3> <b>Sigues a: </b></h3>
             <br/>
             <table class="table">
                 <thead>
@@ -12,8 +12,8 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="usu in usuarios" :key="usu._id">
-                        <td>{{usu._id}}</td>
+                    <tr v-for="usuario in listaSeguidos" :key="usuario._id">
+                        <td>{{usuario._id}}</td>
                     </tr>
                 </tbody>
             </table>
@@ -30,18 +30,24 @@ export default{
     name: "Seguidos",
     data: function(){
         return {
-            usuario: localStorage.username,
-            usuarios: null
+            listaSeguidos: null,
+            noSigueAnadie: false
         }
     },
     components:{
         Header
     },
-    mounted: function(){
-        this.idTweet = this.$route.params.id;
-        axios.get('http://localhost:3000/twapi/usuarios/' + localStorage.idUsuario + '/seguidores')
+    mounted: function(){    
+        let direccion = "http://localhost:3000/twapi/usuarios/" + this.$store.state.idUsuario + "/seguidos";
+        axios.get(direccion)
             .then(result => {
-                this.usuarios = result.data.docs._id;
+                console.log(result)
+                this.listaSeguidos = result.data.docs;
+                if(result.data.totalDocs == 0){
+                    this.noSigueAnadie = true;
+                }
+            }).catch((err) => {
+                console.log(err)
             })
     }
 

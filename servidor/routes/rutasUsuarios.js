@@ -82,7 +82,7 @@ router.get('/:id/tweets', async function(req, res) {
             return res.status(200).send({mensaje: "Este usuario no tiene tweets"})
         }
 
-        var lista_tweets = await Tweet.paginate({autor: usuarioBuscado._id}, options)
+        var lista_tweets = await Tweet.paginate({autor: usuarioBuscado.nickname}, options)
         if(lista_tweets.docs.length === 0){ //si el array de docs que hay en lista_tweets al paginar esta vacio es que no hay tweets almacenados
             return res.status(404).send({mensaje: 'No hay tweets'})
         }
@@ -153,8 +153,7 @@ router.get('/:id/seguidores', async function(req, res) {
             if(usuarioBuscado.seguidores.length === 0){
                 return res.status(200).send({mensaje: 'El usuario no tiene seguidores'})
             }
-    
-            var lista_seguidores = await Seguimiento.paginate({seguido: usuarioBuscado._id}, options)
+            var lista_seguidores = await Seguimiento.paginate({seguido: usuarioBuscado.nickname}, options)
             if(lista_seguidores.hasPrevPage){
                 lista_seguidores.prevPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/seguidores?limit=' + options.limit +'&page=' + (options.page - 1)
             }
@@ -186,8 +185,7 @@ router.get('/:id/seguidos', async function(req, res){
         if(usuarioBuscado.seguidos.length === 0){
             return res.status(200).send({mensaje: 'El usuario no sigue a nadie'})
         }
-
-        var lista_seguidos = await Seguimiento.paginate({seguidor: usuarioBuscado._id}, options)
+        var lista_seguidos = await Seguimiento.paginate({seguidor: usuarioBuscado.nickname}, options)
         if(lista_seguidos.hasPrevPage){
             lista_seguidos.prevPage = 'http://localhost:3000/twapi/usuarios/' + usuarioBuscado._id + '/seguidos?limit=' + options.limit +'&page=' + (options.page - 1)
         }
@@ -233,13 +231,8 @@ router.get('/:id/imagenes', async function(req, res){
 
 router.post('/', async function(req, res){
     try{
-        /**
-        if(localStorage.idUsuario !== null){
-            return res.status(200).send({mensaje: "Ya estas logueado"})
-        }*/
         var passwordEncriptada = bcrypt.hashSync(req.body.password, 10)
-    
-    
+        
         var nuevoUsuario = new User({
             nickname: req.body.nickname,
             password: passwordEncriptada,

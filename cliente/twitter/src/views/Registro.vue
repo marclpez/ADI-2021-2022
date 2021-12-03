@@ -11,7 +11,7 @@
 
         <!-- Registro Form -->
         <form v-on:submit.prevent="registro">
-          <input type="text" id="email" class="fadeIn third" name="login" placeholder="Email" v-model="email">
+          <input type="email" id="email" class="fadeIn third" name="login" placeholder="Email" v-model="email">
           <input type="text" id="login" class="fadeIn second" name="login" placeholder="Username" v-model="username">
           <input type="password" id="password" class="fadeIn third" name="login" placeholder="Password" v-model="password">
           <input type="submit" class="fadeIn fourth" value="Log Up">
@@ -25,6 +25,14 @@
           {{error_msg}}
         </div>
 
+        <!-- Ya tienes cuenta -->
+        <div id="formFooter">
+          <a class="underlineHover" v-on:click="login()">Ya tengo cuenta</a>
+        </div>
+
+        <div id="formFooter">
+          <a class="underlineHover" v-on:click="volverMuro()">Volver a la vista pública</a>
+        </div>
       </div>
     </div>
   </div>
@@ -64,7 +72,17 @@ export default {
             this.error = true;
             this.error_msg = result.data.mensaje;
           }
-        });
+        }).catch((err) => {
+          console.log(err);
+          this.error = true;
+          this.error_msg = "Debes completar el formulario";
+        })
+    },
+    login(){
+      this.$router.push('/login')
+    },
+    volverMuro(){
+      this.$router.push('/home')
     }
   }
 }
@@ -188,7 +206,7 @@ input[type=button]:active, input[type=submit]:active, input[type=reset]:active  
   transform: scale(0.95);
 }
 
-input[type=text], input[type=password] {
+input[type=text], input[type=email], input[type=password] {
   background-color: #f6f6f6;
   border: none;
   color: #0d0d0d;
@@ -209,12 +227,12 @@ input[type=text], input[type=password] {
   border-radius: 5px 5px 5px 5px;
 }
 
-input[type=text]:focus {
+input[type=text], input[type=email]:focus {
   background-color: #fff;
   border-bottom: 2px solid #5fbae9;
 }
 
-input[type=text]:placeholder {
+input[type=text], input[type=email]:placeholder {
   color: #cccccc;
 }
 

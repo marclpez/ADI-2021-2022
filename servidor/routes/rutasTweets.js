@@ -53,9 +53,9 @@ router.get('/:id', async function(req, res) {
             return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
         }
         console.log(tweetBuscado)
-        autor = await User.findOne({ _id: tweetBuscado.autor })
+        autor = await User.findOne({ nickname: tweetBuscado.autor })
         console.log(autor);
-        res.status(200).send({idTweet: tweetBuscado._id, autor: autor.nickname, mensaje: tweetBuscado.mensaje, likes: tweetBuscado.likes});
+        res.status(200).send({idTweet: tweetBuscado._id, autor: autor, mensaje: tweetBuscado.mensaje, likes: tweetBuscado.likes});
     }
     catch(err){
         if(tweetBuscado === undefined || tweetBuscado === null){
@@ -104,7 +104,7 @@ router.post('/', auth.chequeaJWT, async function(req, res) {
 
         var nuevoTweet = new Tweet({
             mensaje: req.body.mensaje,
-            autor: autor
+            autor: autor.nickname
         })
         console.log(nuevoTweet);
         await nuevoTweet.save();
@@ -133,7 +133,7 @@ router.delete('/:id', auth.chequeaJWT, async function(req, res){
     try{
         tweetBuscado = await Tweet.findOne({ _id: req.params.id})
         usuarioBuscado = await User.findOne({_id: localStorage.idUsuario})
-        if(tweetBuscado.autor != localStorage.idUsuario){
+        if(tweetBuscado.autor != localStorage.nickname){
             return res.status(401).send({mensaje: "No puedes eliminar un tweet que no es tuyo"})
         }
         await Tweet.deleteOne({ _id: tweetBuscado._id}) //eliminamos el tweet

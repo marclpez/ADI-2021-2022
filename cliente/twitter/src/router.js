@@ -1,7 +1,6 @@
 import Vue from 'vue';
 import Router from 'vue-router';
 import Login from './views/Login.vue';
-import Logout from './views/Logout.vue';
 import Perfil from './views/Perfil.vue';
 import DetallesTweet from './views/DetallesTweet.vue';
 import LikesTweet from './views/LikesTweet.vue';
@@ -31,7 +30,17 @@ export const router = new Router({
         {
             path: '/login',
             name: 'login',
-            component: Login
+            component: Login,
+            beforeEnter: (to, from, next) => {
+                console.log(store.state.logueado)
+                if(!store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Ya estás logueado')
+                    next('/perfil');
+                }
+            }
         },
         {
             path: '/perfil',
@@ -94,24 +103,18 @@ export const router = new Router({
             }
         },
         {
-            path: '/logout',
-            name: 'logout',
-            component: Logout,
-            //Proteccion de rutas
+            path: '/registro',
+            name: 'registro',
+            component: Registro,
             beforeEnter: (to, from, next) => {
-                if(store.state.logueado){
+                if(!store.state.logueado){
                     next()
                 }
                 else{
-                    alert('Debes loguearte antes')
-                    next('/login');
+                    alert('Ya estás logueado')
+                    next('/perfil');
                 }
             }
-        },
-        {
-            path: '/registro',
-            name: 'registro',
-            component: Registro
         },
         {
             path: '/seguidores',

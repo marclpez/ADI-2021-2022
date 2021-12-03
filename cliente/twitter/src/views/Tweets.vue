@@ -8,16 +8,16 @@
             <table class="table">
                 <thead>
                     <tr>
-                        <th scope="col" align="center">Tweet</th>
-                        <th scope="col" align="center">Usuario</th>
-                        <th scope="col" align="center">Mensaje</th>
+                        <th scope="col" align="center">Autor</th>
+                        <th scope="col" align="center">Contenido</th>
+                        <th scope="col" align="center">Likes</th>
                     </tr>
                 </thead>
                 <tbody>
                     <tr v-for="tweet in tweets" :key="tweet._id">
-                        <td>{{tweet._id}}
                         <td>{{tweet.autor}}</td>
                         <td>{{tweet.mensaje}}</td>
+                        <td>{{tweet.likes.length}}</td>
                     </tr>
                 </tbody>
             </table>

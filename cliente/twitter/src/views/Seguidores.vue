@@ -46,6 +46,8 @@ export default{
             .then(result => {
                 console.log(result)
                 this.tweets = result.data.docs;
+            }).catch((err) => {
+                console.log(err);
             })
     }
 

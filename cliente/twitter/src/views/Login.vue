@@ -23,7 +23,10 @@
         </div>
         <!-- No tienes cuenta -->
         <div id="formFooter">
-          <a class="underlineHover" href="/registro">¿No tienes cuenta?</a>
+          <a class="underlineHover" v-on:click="registro()" >No tengo cuenta</a>
+        </div>
+        <div id="formFooter">
+          <a class="underlineHover" v-on:click="volverMuro()" >Volver a la vista pública</a>
         </div>
       </div>
     </div>
@@ -69,6 +72,12 @@ export default {
           this.error = true;
           this.error_msg = "Credenciales incorrectas";
         })
+    },
+    registro(){
+      this.$router.push('/registro')
+    },
+    volverMuro(){
+      this.$router.push('/home')
     }
   }
 }
