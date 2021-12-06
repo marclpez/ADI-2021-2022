@@ -21,6 +21,7 @@
                         <td>{{tweet.mensaje}} </td>
                         <td align="right">
                             <button type="button" class="btn btn-info" style="margin-left: 10px" v-on:click="detallesTweet(tweet._id)">Detalles del tweet</button>
+                            <button type="button" class="btn btn-secondary" style="margin-left: 10px" v-on:click="editarTweet(tweet._id)">Editar tweet</button>
                             <button type="button" class="btn btn-danger" style="margin-left: 10px" v-on:click="borrarTweet(tweet._id, index)">Borrar tweet</button>
                         </td>
                     </tr>
@@ -33,6 +34,7 @@
             <b>Número de tweets: {{totalTweets}}</b>
         </div>
         <div class="container" v-else>
+            <br/>
             <div class="alert alert-danger" role="alert">
                 No tienes ningún tweet, postea!
             </div>
@@ -79,6 +81,9 @@ export default{
         },
         detallesTweet(idTweet){
             this.$router.push('/tweets/' + idTweet);
+        },
+        editarTweet(idTweet){
+            this.$router.push('/editarPost/' + idTweet)
         },
         borrarTweet(idTweet, index){
             let direccion = "http://localhost:3000/twapi/tweets/" + idTweet;

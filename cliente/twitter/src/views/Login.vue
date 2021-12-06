@@ -13,7 +13,9 @@
         <form v-on:submit.prevent="login">
           <input type="text" id="login" class="fadeIn second" name="login" placeholder="Username" v-model="username">
           <input type="password" id="password" class="fadeIn third" name="login" placeholder="Password" v-model="password">
-          <input type="submit" class="fadeIn fourth" value="Log In">
+          <div :class="{ shake: noActivated }">
+            <input v-on:click="noActivated = true" type="submit" class="fadeIn fourth" value="Log In">
+          </div>
         </form>
 
 
@@ -42,7 +44,8 @@ export default {
       username: "",
       password: "",
       error: false,
-      error_msg: ""
+      error_msg: "",
+      noActivated: false
     }
   },
   methods:{
@@ -348,4 +351,33 @@ input[type=text]:placeholder {
   width:60%;
 }
 
+.shake {
+  animation: shake 0.82s cubic-bezier(0.36, 0.07, 0.19, 0.97) both;
+  transform: translate3d(0, 0, 0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+@keyframes shake {
+  10%,
+  90% {
+    transform: translate3d(-1px, 0, 0);
+  }
+
+  20%,
+  80% {
+    transform: translate3d(2px, 0, 0);
+  }
+
+  30%,
+  50%,
+  70% {
+    transform: translate3d(-4px, 0, 0);
+  }
+
+  40%,
+  60% {
+    transform: translate3d(4px, 0, 0);
+  }
+}
 </style>

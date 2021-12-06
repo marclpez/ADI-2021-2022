@@ -24,7 +24,6 @@ async function chequeaJWT(req, res, next) {
         res.status(401).send({mensaje: "no tienes permisos"});
     }
     catch{
-        console.log("ha petado")
         res.status(401).send({mensaje: "no tienes permisos"})
     }
 }

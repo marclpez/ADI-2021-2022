@@ -2,9 +2,11 @@
     <div>
         <Header/>
         <br/>
-        <div class="container" v-if="noTieneLikes == false">
+        <div class="container">
             <h3> <b>Los usuarios que le han dado like al tweet son: </b></h3>
-            <br/>
+        </div>
+        <br/>
+        <div class="container" v-if="noTieneLikes == false">
             <table class="table">
                 <thead>
                     <tr>

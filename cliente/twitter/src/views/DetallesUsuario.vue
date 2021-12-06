@@ -3,6 +3,9 @@
         <Header/>
         <br/>
         <h3 class="display-2" align="center">Detalles de {{nickname}}</h3>
+        <div class="container" align="right" v-if="esElUsuarioLogueado" >
+            <button type="button" class="btn btn-info btn-lg" style="margin: 10px" v-on:click="editarPerfil()">Editar perfil</button>
+        </div>
         <br/>
         <div class="container">
             <table class="table table-striped">
@@ -24,12 +27,10 @@
                 </tbody>
             </table>
             <br>
+
             <br>
-            <div class="container" align="center">
-                <button type="button" class="btn btn-info" v-if="mostrar === false" style="margin: 10px" v-on:click="mostrarTweets()">Mostrar Tweets</button>
-            </div>
-            <h5 class="display" v-show="mostrar" align="center">Tweets:</h5>
-            <table class="table" v-show="mostrar">
+            <h5 class="display" align="center">Tweets:</h5>
+            <table class="table">
                 <thead>
                     <tr>
                         <th scope="col" align="center">#</th>
@@ -60,7 +61,6 @@ export default{
     },
     data: function(){
         return {
-            id: null,
             listaTweets: null,
             seguidores: null,
             seguidos: null,
@@ -70,11 +70,14 @@ export default{
             password: null,
             email: null,
             error: false,
-            ok: false, 
-            mostrar: false
+            ok: false,
+            esElUsuarioLogueado: false
         }
     },
     mounted: function(){
+        if(this.$store.state.idUsuario == this.$route.params.id){
+            this.esElUsuarioLogueado = true;
+        }
         axios.get('http://localhost:3000/twapi/usuarios/' + this.$route.params.id)
             .then(result => {
                 console.log(result);
@@ -85,24 +88,25 @@ export default{
                 this.seguidos = result.data.seguidos.length;
                 this.ok = true;
             }).catch((err) => console.log(err));
+
+        console.log(this.$route.params.id)
+        axios.get("http://localhost:3000/twapi/usuarios/" + this.$route.params.id + "/tweets")
+            .then(result => {
+                console.log(result)
+                if(result.data.mensaje == 'Este usuario no tiene tweets'){
+                    this.noTieneTweets = true;
+                }
+                else{
+                    this.listaTweets = result.data.docs;
+                }
+            }).catch((err) => {
+                console.log(err)
+            });
     },
-    methods:{
-        mostrarTweets(){
-            axios.get("http://localhost:3000/twapi/usuarios/" + this.id + "/tweets")
-                .then(result => {
-                    console.log(result)
-                    if(result.data.mensaje == 'Este usuario no tiene tweets'){
-                        this.noTieneTweets = true;
-                    }
-                    else{
-                        this.listaTweets = result.data.docs;
-                    }
-                    this.mostrar = true;
-                }).catch((err) => {
-                    console.log(err)
-                });
+    methods: {
+        editarPerfil(){
+            this.$router.push('/editarPerfil/' + this.$route.params.id)
         }
     }
-
 }
 </script>

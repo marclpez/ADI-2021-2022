@@ -20,6 +20,11 @@
                         <td>{{tweet.autor}} </td>
                         <td>{{tweet.mensaje}} </td>
                         <td>{{tweet.likes.length}} </td>
+                        <td align="right" v-if="logueado">
+                            <button type="button" class="btn btn-info" style="margin-left: 10px" v-on:click="detallesTweet(tweet._id)">Detalles del tweet</button>
+                            <button  v-if="tweet.autor != usuarioLogueado" type="button" class="btn btn-info" style="margin-left: 10px" v-on:click="detallesUsuario(tweet.autor)">Detalles del autor</button>
+                            <button v-else type="button" class="btn btn-info" style="margin-left: 10px" v-on:click="detallesUsuario(tweet.autor)">Detalles de tu perfil</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -37,7 +42,9 @@ export default {
   },
   data: function(){
       return{
-          listaTweets: null
+          listaTweets: null,
+          usuarioLogueado: this.$store.state.username,
+          logueado: this.$store.state.logueado
       }  
   },
   mounted: function(){
@@ -53,6 +60,12 @@ export default {
       },
       registro(){
           this.$router.push('/registro')
+      },
+      detallesTweet(idTweet){
+          this.$router.push('/tweets/' + idTweet)
+      },
+      detallesUsuario(idUsuario){
+          this.$router.push('/usuarios/' + idUsuario)
       }
   }
 }

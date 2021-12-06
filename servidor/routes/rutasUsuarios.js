@@ -326,7 +326,7 @@ router.post('/logout', auth.chequeaJWT, async function(req, res){
     }
  });
 
-router.put('/', auth.chequeaJWT, async function(req, res){
+router.put('/:id', auth.chequeaJWT, async function(req, res){
     var usuarioBuscado;
     const options = {
         useFindAndModify: false,
@@ -338,15 +338,21 @@ router.put('/', auth.chequeaJWT, async function(req, res){
             req.body.password = bcrypt.hashSync(req.body.password, 10);
         }
         console.log("password " + req.body.password);
-        usuarioBuscado = await User.findOneAndUpdate({ _id: localStorage.idUsuario}, req.body, options)
+        usuarioBuscado = await User.findOneAndUpdate({ _id: req.params.id}, req.body, options)
         console.log(usuarioBuscado)
         if(usuarioBuscado === null){
             return res.status(404).send({mensaje: 'No existe un usuario con ese ID'})
         }
         else if(req.body.nickname){
+            await Tweet.updateMany({ autor: localStorage.nickname }, { autor: req.body.nickname }, options) //actualizamos sus tweets
+            await Like.updateMany({ usuario: localStorage.nickname }, { usuario: req.body.nickname }, options) //actualizamos sus likes
+            await Seguimiento.updateMany({ seguidor: localStorage.nickname }, { seguidor: req.body.nickname }, options) //actualizamos sus seguimientos 
+            await Seguimiento.updateMany({ seguido: localStorage.nickname }, { seguido: req.body.nickname }, options) //actualizamos sus seguimientos
             localStorage.setItem('nickname', req.body.nickname);
         }
         localStorage.setItem("idUsuario", usuarioBuscado._id)
+        console.log(req.params.id);
+        console.log(localStorage.idUsuario);
         res.status(200).send({mensaje: "Usuario actualizado"})
     }
     catch(err){

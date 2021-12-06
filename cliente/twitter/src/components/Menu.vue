@@ -18,8 +18,8 @@
                   <template #button-content>
                       <em style="padding: 40px">{{username}}</em>
                   </template>
-                  <b-dropdown-item v-on:click="detallesdelperfil()">Profile</b-dropdown-item>
-                  <b-dropdown-item v-on:click="logout()">Sign Out</b-dropdown-item>
+                  <b-dropdown-item v-on:click="detallesdelperfil()">Tu perfil</b-dropdown-item>
+                  <b-dropdown-item v-on:click="logout()">Cerrar sesión</b-dropdown-item>
                   </b-nav-item-dropdown>
               </b-navbar-nav>
             </b-collapse>

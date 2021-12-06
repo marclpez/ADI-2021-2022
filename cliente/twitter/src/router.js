@@ -10,6 +10,8 @@ import Seguidores from './views/Seguidores.vue';
 import Seguidos from './views/Seguidos.vue';
 import DetallesUsuario from './views/DetallesUsuario.vue';
 import NuevoPost from './views/NuevoPost.vue'
+import EditPost from './views/EditPost.vue'
+import EditUsuario from './views/EditUsuario.vue'
 import store from './store'
 
 Vue.use(Router);
@@ -59,6 +61,21 @@ export const router = new Router({
             }
         },
         {
+            path: '/editarPerfil/:id',
+            name: 'editUsuario',
+            component: EditUsuario,
+            //Proteccion de rutas
+            beforeEnter: (to, from, next) => {
+                if(store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Debes loguearte antes')
+                    next('/login');
+                }
+            }
+        },
+        {
             path: '/misTweets',
             name: 'misTweets',
             component: MisTweets,
@@ -77,6 +94,21 @@ export const router = new Router({
             path: '/nuevoPost',
             name: 'nuevoPost',
             component: NuevoPost,
+            //Proteccion de rutas
+            beforeEnter: (to, from, next) => {
+                if(store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Debes loguearte antes')
+                    next('/login');
+                }
+            }
+        },
+        {
+            path: '/editarPost/:id',
+            name: 'editarPost',
+            component: EditPost,
             //Proteccion de rutas
             beforeEnter: (to, from, next) => {
                 if(store.state.logueado){

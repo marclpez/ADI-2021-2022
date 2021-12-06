@@ -122,6 +122,30 @@ router.post('/', auth.chequeaJWT, async function(req, res) {
     }
 })
 
+router.put('/:id', auth.chequeaJWT, async function(req, res){
+    var tweetBuscado;
+    const options = {
+        useFindAndModify: false,
+        new : true
+    }
+    
+    try{
+        tweetBuscado = await Tweet.findOneAndUpdate({ _id: req.params.id}, req.body, options)
+        console.log(tweetBuscado)
+        if(tweetBuscado === null){
+            return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
+        }
+
+        res.status(200).send({mensaje: "Tweet actualizado"})
+    }
+    catch(err){
+        if(tweetBuscado === undefined || tweetBuscado === null){
+            return res.status(404).send({mensaje: 'No existe un tweet con ese ID'})
+        }
+        res.status(500).send({mensaje: "Error"})
+    }
+});
+
 router.delete('/:id', auth.chequeaJWT, async function(req, res){
     var tweetBuscado;
     var usuarioBuscado;
