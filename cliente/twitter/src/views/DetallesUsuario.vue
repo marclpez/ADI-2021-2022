@@ -18,15 +18,18 @@
                     <tr>
                         <td>{{email}}</td>
                         <td>{{nickname}}</td>
-                        <td>{{seguidores.length}}</td>
-                        <td>{{seguidos.length}}</td>
+                        <td>{{seguidores}}</td>
+                        <td>{{seguidos}}</td>
                     </tr>
                 </tbody>
             </table>
             <br>
             <br>
-            <h5 class="display" align="center">Tweets:</h5>
-            <table class="table" v-ok=mostrarTweets() >
+            <div class="container" align="center">
+                <button type="button" class="btn btn-info" v-if="mostrar === false" style="margin: 10px" v-on:click="mostrarTweets()">Mostrar Tweets</button>
+            </div>
+            <h5 class="display" v-show="mostrar" align="center">Tweets:</h5>
+            <table class="table" v-show="mostrar">
                 <thead>
                     <tr>
                         <th scope="col" align="center">#</th>
@@ -60,13 +63,15 @@ export default{
             id: null,
             listaTweets: null,
             seguidores: null,
+            seguidos: null,
             mensajes: null,
             likes: null,
             nickname: null,
             password: null,
             email: null,
             error: false,
-            ok: false
+            ok: false, 
+            mostrar: false
         }
     },
     mounted: function(){
@@ -76,8 +81,8 @@ export default{
                 this.id = result.data._id;
                 this.nickname = result.data.nickname;
                 this.email = result.data.email;
-                this.seguidores = result.data.seguidores;
-                this.seguidos = result.data.seguidos;
+                this.seguidores = result.data.seguidores.length;
+                this.seguidos = result.data.seguidos.length;
                 this.ok = true;
             }).catch((err) => console.log(err));
     },
@@ -92,6 +97,7 @@ export default{
                     else{
                         this.listaTweets = result.data.docs;
                     }
+                    this.mostrar = true;
                 }).catch((err) => {
                     console.log(err)
                 });
