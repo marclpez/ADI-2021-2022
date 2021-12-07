@@ -64,8 +64,13 @@ export default {
       detallesTweet(idTweet){
           this.$router.push('/tweets/' + idTweet)
       },
-      detallesUsuario(idUsuario){
-          this.$router.push('/usuarios/' + idUsuario)
+      detallesUsuario(username){
+          axios.get('http://localhost:3000/twapi/usuarios/nickname/' + username)
+            .then(result => {
+                console.log(result)
+                var idUsuario = result.data._id;
+                this.$router.push('/usuarios/' + idUsuario)
+            }).catch(err => console.log(err))
       }
   }
 }

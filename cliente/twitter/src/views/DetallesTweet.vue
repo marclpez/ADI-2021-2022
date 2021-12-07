@@ -22,16 +22,18 @@
                 </tbody>
             </table>
 
-            <div class="alert alert-success" role="alert" v-if="ok">
+            <div class="alert alert-success" role="alert" v-if="okDado">
                 Like registrado!!
             </div>
-            <!-- Error like -->
-            <div class="alert alert-danger" role="alert" v-if="error">
-                Ya le has dado like al tweet
+
+
+            <div class="alert alert-danger" role="alert" v-if="okQuitado">
+                Like eliminado!!
             </div>
 
             <div class="container" align="center">
-                <button type="button" class="btn btn-danger" style="margin: 10px" v-on:click="nuevoLike(idTweet)">Like</button>
+                <button v-if="yaLeHaDadoLike" type="button" class="btn btn-danger" style="margin: 10px" v-on:click="borrarLike()">Quitar like</button>
+                <button v-else type="button" class="btn btn-danger" style="margin: 10px" v-on:click="nuevoLike(idTweet)">Dar like</button>
                 <button type="button" class="btn btn-info" style="margin: 10px" v-on:click="listaLikes(idTweet)">¿Quién le ha dado like al tweet?</button>
                 <button type="button" class="btn btn-dark" style="margin: 10px" v-on:click="volver()">Volver al muro</button>
             </div>
@@ -54,8 +56,11 @@ export default{
             autor: null,
             mensaje: null,
             likes: null,
-            ok: false,
-            error: false
+            okDado: false,
+            okQuitado: false,
+            error: false,
+            yaLeHaDadoLike: false,
+            idLike: null
         }
     },
     mounted: function(){
@@ -66,6 +71,17 @@ export default{
                 this.autor = result.data.autor.nickname;
                 this.mensaje = result.data.mensaje;
                 this.likes = result.data.likes.length;
+            }).catch((err) => console.log(err))
+        
+        axios.get('http://localhost:3000/twapi/tweets/' + this.idTweet + '/likes')
+            .then(result => {
+                console.log(result)
+                var likeUsuario = result.data.likes.docs.find(x => x.usuario === this.$store.state.username);
+                console.log(likeUsuario)
+                if(likeUsuario){
+                    this.yaLeHaDadoLike = true;
+                    this.idLike = likeUsuario._id;
+                }
             }).catch((err) => console.log(err))
     },
     methods: {
@@ -78,17 +94,26 @@ export default{
                     console.log(result);
                     if(result.status == 201){
                         this.likes++;
-                        this.ok = true;
-                    }
-                    else if(result.data.mensaje == 'Ya le has dado like a este tweet'){
-                        this.ok = false;
-                        this.error = true;
+                        this.okQuitado = false;
+                        this.okDado = true;
+                        this.yaLeHaDadoLike = true;
+                        this.idLike = result.data.like._id
                     }
                 })
                 .catch(err => {
-                    console.log(err)
-                    this.ok = false; //por si se vuelve a dar a like al tweet que no se quede el mensaje anterior en la pagina
-                    this.error = true;
+                    console.log(err);
+                })
+        },
+        borrarLike(){
+            axios.delete('http://localhost:3000/twapi/likes/' + this.idLike)
+                .then(result => {
+                    console.log(result);
+                    if(result.data.mensaje == 'Like eliminado'){
+                        this.yaLeHaDadoLike = false;
+                        this.likes--;
+                        this.okDado = false;
+                        this.okQuitado = true;
+                    }
                 })
         },
         listaLikes(id){
