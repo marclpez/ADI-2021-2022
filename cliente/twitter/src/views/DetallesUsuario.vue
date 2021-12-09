@@ -3,8 +3,14 @@
         <Header/>
         <br/>
         <h3 class="display-2" align="center">Detalles de {{nickname}}</h3>
-        <div class="container" align="right" v-if="esElUsuarioLogueado" >
+        <div class="container" align="right" v-if="mostrarEditarPerfil" >
             <button type="button" class="btn btn-info btn-lg" style="margin: 10px" v-on:click="editarPerfil()">Editar perfil</button>
+        </div>
+        <div class="container" align="right" v-if="mostrarBotonDejarDeSeguir" >
+            <button type="button" class="btn btn-danger btn-lg" style="margin: 10px" v-on:click="borrarSeguimiento()">Dejar de seguir</button>
+        </div>
+        <div class="container" align="right" v-if="mostrarBotonDeSeguir">
+            <button type="button" class="btn btn-success btn-lg" style="margin: 10px" v-on:click="addSeguimiento()">Seguir</button>
         </div>
         <br/>
         <div class="container">
@@ -71,7 +77,9 @@ export default{
             email: null,
             error: false,
             ok: false,
-            esElUsuarioLogueado: false
+            esElUsuarioLogueado: false,
+            sigueAlUsuario: false,
+            idSeguimiento: null
         }
     },
     mounted: function(){
@@ -102,10 +110,66 @@ export default{
             }).catch((err) => {
                 console.log(err)
             });
+        
+        axios.get("http://localhost:3000/twapi/usuarios/" + this.$store.state.idUsuario + "/seguidos")
+            .then(result => {
+                console.log(result)
+                if(result.data.docs){
+                    //buscamos si sigue al usuario del cual estamos visitando el perfil
+                    var seguimiento = result.data.docs.find(item => {
+                        return item.seguidor === this.$store.state.username && item.seguido === this.nickname;
+                    })
+                    console.log(seguimiento)
+                    if(seguimiento){
+                        this.sigueAlUsuario = true;
+                        this.idSeguimiento = seguimiento._id;
+                    }
+                }
+            }).catch((err) => {
+                console.log(err)
+            });
+    },
+    computed: {
+        mostrarEditarPerfil(){
+            return this.esElUsuarioLogueado;
+        },
+        mostrarBotonDejarDeSeguir(){
+            return !this.esElUsuarioLogueado && this.sigueAlUsuario;
+        },
+        mostrarBotonDeSeguir(){
+            return !this.esElUsuarioLogueado && !this.sigueAlUsuario;
+        }
     },
     methods: {
         editarPerfil(){
             this.$router.push('/editarPerfil/' + this.$route.params.id)
+        },
+        addSeguimiento(){
+            let json = {
+                "seguido": this.nickname
+            }
+            axios.post("http://localhost:3000/twapi/seguimientos/", json)
+                .then(result => {
+                    console.log(result)
+                    if(result.data.mensaje === 'Guardado el seguimiento'){
+                        this.sigueAlUsuario = true;
+                        this.idSeguimiento = result.data.seguimiento._id;
+                    }
+                }).catch((err) => {
+                    console.log(err)
+                }); 
+        },
+        borrarSeguimiento(){
+            axios.delete("http://localhost:3000/twapi/seguimientos/" + this.idSeguimiento)
+                .then(result => {
+                    console.log(result)
+                    if(result.data.mensaje === 'Seguimiento eliminado'){
+                        this.sigueAlUsuario = false;
+                        this.idSeguimiento = null;
+                    }
+                }).catch((err) => {
+                    console.log(err)
+                });             
         }
     }
 }

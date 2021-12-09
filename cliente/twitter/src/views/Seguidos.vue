@@ -13,7 +13,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(seguimiento, index) in listaSeguimientos" :key="index">
+                    <tr v-for="(seguimiento, index) in listaSeguimientos" :key="index" class="animated" transition="bounce">
                         <td>{{index+1}}</td>
                         <td>{{seguimiento.seguido}}</td>
                         <td align="right">
