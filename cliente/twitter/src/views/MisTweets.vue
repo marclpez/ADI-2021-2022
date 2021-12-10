@@ -3,7 +3,7 @@
         <Header/>
         <br/>
         <div class="container">
-            <h1 class="display-2" align="center">TUS TWEETS</h1>
+            <h1 class="display-2" align="center"><b>TUS TWEETS</b></h1>
             <br/>
             <button type="button" align="center" style="margin-left: 560px" class="btn btn-primary btn-lg" v-on:click="postearTweet()">Publicar tweet</button>
         </div>

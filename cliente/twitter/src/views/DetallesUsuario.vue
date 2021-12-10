@@ -49,6 +49,9 @@
                         <td>{{index+1}}</td>
                         <td>{{tweet.mensaje}} </td>
                         <td>{{tweet.likes.length}} </td>
+                        <td align="right">
+                            <button type="button" class="btn btn-info" style="margin-left: 10px" v-on:click="detallesTweet(tweet._id)">Detalles del tweet</button>
+                        </td>
                     </tr>
                 </tbody>
             </table>
@@ -170,6 +173,9 @@ export default{
                 }).catch((err) => {
                     console.log(err)
                 });             
+        },
+        detallesTweet(idTweet){
+            this.$router.push('/tweets/' + idTweet);
         }
     }
 }

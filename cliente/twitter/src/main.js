@@ -34,6 +34,3 @@ new Vue({
   render: h => h(App),
 }).$mount('#app')
 
-Vue.transition('bounce', {
-  leaveClass: 'bounceOut'
-})

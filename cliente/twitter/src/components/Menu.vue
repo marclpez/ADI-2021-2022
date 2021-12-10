@@ -1,8 +1,8 @@
 <template>
     <div>
-        <b-navbar toggleable="lg" type="dark" variant="info">
-            <img src="../assets/logo.png" width="50px" height="50px">
-            <a class="navbar-brand">TWITTER</a>
+        <b-navbar toggleable="lg" type="dark" class="nav">
+            <img src="../assets/gorjeo(2).png" width="40px" height="40px">
+            <a class="navbar-brand"><b style="font-size: 23px">TWITTER</b></a>
             <b-navbar-toggle target="nav-collapse"></b-navbar-toggle>
 
             <b-collapse id="nav-collapse" is-nav v-if="logueado">
@@ -11,6 +11,7 @@
                   <b-nav-item v-on:click="mostrarTweets()">Mis tweets</b-nav-item>
                   <b-nav-item v-on:click="seguidores()">Seguidores</b-nav-item>
                   <b-nav-item v-on:click="seguidos()">Seguidos</b-nav-item>
+                  <b-nav-item v-on:click="usuarios()">¿Quién usa nuesta app?</b-nav-item>
               </b-navbar-nav>
 
               <b-navbar-nav class="ms-auto" style="margin:13px">
@@ -67,7 +68,7 @@ export default {
           this.$router.push('/')
       },
       detallesdelperfil(){
-          if(this.$route.path !== '/usuarios/' + this.$store.state.idUsuario){
+          if(this.$route.path == '/usuarios/:id'){
             this.$router.push('/usuarios/' + this.$store.state.idUsuario)
           }
       },
@@ -90,10 +91,23 @@ export default {
           if(this.$route.path !== '/seguidos'){
             this.$router.push('/seguidos')
           }
+      },
+      usuarios(){
+          if(this.$route.path !== '/usuarios'){
+            this.$router.push('/usuarios')
+          }        
       }
   }
 }
 </script>
+
+<style scoped>
+  .nav {
+    background-color: #34A0E6;
+    height: 70px;
+    font-size: 18px;
+  }
+</style>
 
 
 

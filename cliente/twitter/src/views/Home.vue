@@ -21,24 +21,27 @@
                         <td>{{tweet.mensaje}} </td>
                         <td>{{tweet.likes.length}} </td>
                         <td align="right" v-if="logueado">
-                            <button type="button" class="btn btn-info" style="margin-left: 10px" v-on:click="detallesTweet(tweet._id)">Detalles del tweet</button>
-                            <button  v-if="tweet.autor != usuarioLogueado" type="button" class="btn btn-info" style="margin-left: 10px" v-on:click="detallesUsuario(tweet.autor)">Detalles del autor</button>
-                            <button v-else type="button" class="btn btn-info" style="margin-left: 10px" v-on:click="detallesUsuario(tweet.autor)">Detalles de tu perfil</button>
+                            <button type="button" class="btn btn-info" style="margin-left: 10px" v-on:click="detallesTweet(tweet._id)">Info del tweet</button>
+                            <button  v-if="tweet.autor != usuarioLogueado" type="button" class="btn btn-success" style="margin-left: 10px" v-on:click="detallesUsuario(tweet.autor)">Info del autor</button>
+                            <button v-else type="button" class="btn btn-success" style="margin-left: 10px" v-on:click="detallesUsuario(tweet.autor)">Info de tu perfil</button>
                         </td>
                     </tr>
                 </tbody>
             </table>
         </div>
+        <Footer v-if="!logueado"/>
     </div>   
 </template>
 
 <script>
 import axios from 'axios';
 import Header from '../components/Menu.vue'
+import Footer from '../components/Footer.vue'
+
 export default {
   name: 'Home',
   components:{
-      Header
+      Header, Footer
   },
   data: function(){
       return{

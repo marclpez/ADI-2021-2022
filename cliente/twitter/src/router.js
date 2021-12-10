@@ -9,10 +9,11 @@ import Registro from './views/Registro.vue';
 import Seguidores from './views/Seguidores.vue';
 import Seguidos from './views/Seguidos.vue';
 import DetallesUsuario from './views/DetallesUsuario.vue';
-import NuevoPost from './views/NuevoPost.vue'
-import EditPost from './views/EditPost.vue'
-import EditUsuario from './views/EditUsuario.vue'
-import store from './store'
+import NuevoPost from './views/NuevoPost.vue';
+import EditPost from './views/EditPost.vue';
+import EditUsuario from './views/EditUsuario.vue';
+import ListaUsuarios from './views/ListaUsuarios.vue'
+import store from './store';
 
 Vue.use(Router);
 
@@ -42,6 +43,21 @@ export const router = new Router({
                 else{
                     alert('Ya estás logueado')
                     next('/perfil');
+                }
+            }
+        },
+        {
+            path: '/usuarios',
+            name: 'usuarios',
+            component: ListaUsuarios,
+            //Proteccion de rutas
+            beforeEnter: (to, from, next) => {
+                if(store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Debes loguearte antes')
+                    next('/login');
                 }
             }
         },

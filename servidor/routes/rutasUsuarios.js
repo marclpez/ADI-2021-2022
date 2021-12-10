@@ -28,7 +28,7 @@ localStorage = new LocalStorage('./scratch');
 
 router.get('/', async function(req, res) {
     const options = {
-        limit: req.query.limit || 2,
+        limit: req.query.limit || 15,
         page: req.query.page || 1,
     }   
 
@@ -264,7 +264,7 @@ router.post('/', async function(req, res){
             res.header('Location', 'http://localhost:3000/twapi/usuarios/' + nuevoUsuario._id)
             return res.status(201).send({mensaje: "Guardado el usuario", usuario: nuevoUsuario})
         }
-        res.status(400).send({mensaje: "Ya existe un usuario con ese nickname, prueba con otro"});
+        res.status(200).send({mensaje: "Nickname en uso, prueba con otro"});
     }
     catch(err){
         res.status(400).send({mensaje: String(err)});
