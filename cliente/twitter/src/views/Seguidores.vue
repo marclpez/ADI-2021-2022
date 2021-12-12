@@ -18,8 +18,6 @@
                         <td>{{seguimiento.seguidor}}</td>
                         <td align="right">
                             <button type="button" class="btn btn-primary" style="margin-left: 10px" v-on:click="detallesUsuario(seguimiento.seguidor)">Visitar perfil</button>
-                            <button v-if="esReciproco(seguimiento)" type="button" class="btn btn-success" style="margin: 10px" v-on:click="borrarSeguimiento(seguimiento._id)">Dejar de seguir</button>
-                            <button v-else type="button" class="btn btn-success" style="margin: 10px" v-on:click="addSeguimiento(seguimiento.seguidor)">Seguir</button>
                         </td>
                     </tr>
                 </tbody>
@@ -58,10 +56,6 @@ export default{
             }).catch((err) => {
                 console.log(err)
             })
-        this.esReciproco();
-    },
-    computed: {
-
     },
     methods: {
         detallesUsuario(nicknameUsuario){
@@ -93,25 +87,6 @@ export default{
                 }).catch((err) => {
                     console.log(err)
                 });  
-        },
-        esReciproco(seguimiento){
-            let direccion = "http://localhost:3000/twapi/usuarios/" + this.$store.state.idUsuario + "/seguidos";
-            var reciproco = false;
-            axios.get(direccion)
-                .then(result => {
-                    console.log(result)
-                    if(result.data.docs){
-                        //buscamos si sigue al usuario del cual estamos visitando el perfil
-                        var followback = result.data.docs.find(item => {
-                            return item.seguidor === this.$store.state.username && item.seguido === seguimiento.seguidor;
-                        })
-                        console.log(followback)
-                        if(followback){
-                            reciproco = true;
-                        }
-                    }
-                })
-            return reciproco;
         }
     }
 

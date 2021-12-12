@@ -12,7 +12,8 @@ import DetallesUsuario from './views/DetallesUsuario.vue';
 import NuevoPost from './views/NuevoPost.vue';
 import EditPost from './views/EditPost.vue';
 import EditUsuario from './views/EditUsuario.vue';
-import ListaUsuarios from './views/ListaUsuarios.vue'
+import ListaUsuarios from './views/ListaUsuarios.vue';
+import InfoSeguimientos from './views/InfoSeguimientos.vue';
 import store from './store';
 
 Vue.use(Router);
@@ -65,6 +66,21 @@ export const router = new Router({
             path: '/usuarios/:id',
             name: 'detallesUsuario',
             component: DetallesUsuario,
+            //Proteccion de rutas
+            beforeEnter: (to, from, next) => {
+                if(store.state.logueado){
+                    next()
+                }
+                else{
+                    alert('Debes loguearte antes')
+                    next('/login');
+                }
+            }
+        },
+        {
+            path: '/seguidoresYseguidos/:id',
+            name: 'infoSeguimientos',
+            component: InfoSeguimientos,
             //Proteccion de rutas
             beforeEnter: (to, from, next) => {
                 if(store.state.logueado){

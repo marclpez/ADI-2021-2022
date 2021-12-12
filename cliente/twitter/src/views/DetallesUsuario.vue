@@ -29,6 +29,7 @@
                         <td>{{nickname}}</td>
                         <td>{{seguidores}}</td>
                         <td>{{seguidos}}</td>
+                        <td align="right"><button type="button" v-if="!esElUsuarioLogueado" class="btn btn-dark" v-on:click="seguidoresYseguidos()">Más detalles</button></td>
                     </tr>
                 </tbody>
             </table>
@@ -176,6 +177,9 @@ export default{
         },
         detallesTweet(idTweet){
             this.$router.push('/tweets/' + idTweet);
+        },
+        seguidoresYseguidos(){
+            this.$router.push('/seguidoresYseguidos/' + this.$route.params.id);
         }
     }
 }
