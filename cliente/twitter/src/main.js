@@ -6,6 +6,7 @@ import VueAxios from 'vue-axios';
 import Axios from 'axios';
 import store from './store';
 import 'animate.css';
+import VuePaginate from 'vue-paginate';
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -14,6 +15,7 @@ Vue.config.productionTip = false
 Vue.use(BootstrapVue)
 Vue.use(IconsPlugin)
 Vue.use(VueAxios, Axios)
+Vue.use(VuePaginate);
 
 
 
