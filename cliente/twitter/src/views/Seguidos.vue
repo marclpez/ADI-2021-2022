@@ -55,7 +55,7 @@ export default{
     name: "Seguidos",
     data: function(){
         return {
-            listaSeguimientos: null,
+            listaSeguimientos: [],
             noSigueAnadie: false,
             seguimientoEliminado: false,
             paginate: ['listaSeguimientos']
