@@ -5,7 +5,10 @@
         <div class="container">
             <h3> <b>Sigues a: </b></h3>
             <br/>
-            <table class="table" v-if="noSigueAnadie == false">
+        </div>
+        <div class="container" v-if="noSigueAnadie == false">    
+            <paginate ref="paginator" name = "listaSeguimientos" :list = "listaSeguimientos" :per = "2">
+            <table class="table">
                 <thead>
                     <tr>
                         <th scope="col" align="center">#</th>
@@ -13,7 +16,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(seguimiento, index) in listaSeguimientos" :key="index" class="animated" transition="bounce">
+                    <tr v-for="(seguimiento, index) in paginated('listaSeguimientos')" :key="index" class="animated" transition="bounce">
                         <td>{{index+1}}</td>
                         <td>{{seguimiento.seguido}}</td>
                         <td align="right">
@@ -21,15 +24,26 @@
                             <button type="button" class="btn btn-danger" style="margin-left: 10px" v-on:click="borrarSeguimiento(seguimiento._id, index)">Dejar de seguir</button>
                         </td>
                     </tr>
-                </tbody>
+                </tbody> 
             </table>
-            <div class="alert alert-danger" role="alert" v-else>
-                No sigues a nadie todavía
-            </div>
-            <div class="alert alert-danger" role="alert" v-if="seguimientoEliminado">
+            <div class="alert alert-danger" role="alert" v-if="seguimientoEliminado && listaSeguimientos.length >= 1">
                 Ya no sigues a ese usuario
             </div>
+            </paginate>
+            <paginate-links
+                for="listaSeguimientos"
+                :show-step-links="true"
+                :simple="{
+                    prev: 'Anterior',next: 'Siguiente'  
+                }">
+            </paginate-links>
         </div>
+        <div class="container" v-else>
+            <div class="alert alert-danger" role="alert">
+                No sigues a nadie todavía
+            </div>
+        </div>
+        
     </div>
 </template>
 
@@ -43,7 +57,8 @@ export default{
         return {
             listaSeguimientos: null,
             noSigueAnadie: false,
-            seguimientoEliminado: false
+            seguimientoEliminado: false,
+            paginate: ['listaSeguimientos']
         }
     },
     components:{
@@ -69,8 +84,11 @@ export default{
                 .then(result => {
                     console.log(result)
                     if(result.data.mensaje == 'Seguimiento eliminado'){
-                        this.seguimientoEliminado = true;
                         this.listaSeguimientos.splice(index, 1)
+                        this.seguimientoEliminado = true
+                        if(this.listaSeguimientos.length == 0){
+                            this.noSigueAnadie = true;
+                        }
                     }
                 }).catch((err) => {
                     console.log(err)
@@ -93,5 +111,29 @@ export default{
 }
 </script>
 
-<style scoped>
+<style >
+
+ .paginate-links{
+    width:100%;
+    list-style: none;
+    text-align: center;
+}
+
+.paginate-links li {
+    display: inline;
+    background-color: black;
+    color:white;
+    padding:0.5rem;
+    margin-left:0.3rem;
+    margin-right: 0.3rem;
+    cursor:pointer;
+    border-radius: 3px;
+}
+
+.paginate-result{
+    width: 100%;
+    text-align:center;
+    margin-bottom: 1rem;
+}
+
 </style>
