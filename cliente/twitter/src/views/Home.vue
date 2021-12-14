@@ -7,6 +7,7 @@
         </div>
         <br/>
         <div class="container">
+            <paginate ref="paginator" name = "listaTweets" :list = "listaTweets" :per = "2">
             <table class="table">
                 <thead>
                     <tr>
@@ -16,7 +17,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="tweet in listaTweets" :key="tweet._id">
+                    <tr v-for="tweet in paginated('listaTweets')" :key="tweet._id">
                         <td>{{tweet.autor}} </td>
                         <td>{{tweet.mensaje}} </td>
                         <td>{{tweet.likes.length}} </td>
@@ -28,6 +29,14 @@
                     </tr>
                 </tbody>
             </table>
+            </paginate>
+                <paginate-links
+                    for="listaTweets"
+                    :show-step-links="true"
+                    :simple="{
+                        prev: 'Anterior',next: 'Siguiente'  
+                    }">
+                </paginate-links>
         </div>
         <Footer v-if="!logueado"/>
     </div>   
@@ -45,9 +54,10 @@ export default {
   },
   data: function(){
       return{
-          listaTweets: null,
+          listaTweets: [],
           usuarioLogueado: this.$store.state.username,
-          logueado: this.$store.state.logueado
+          logueado: this.$store.state.logueado,
+          paginate: ['listaTweets']
       }  
   },
   mounted: function(){
@@ -79,7 +89,7 @@ export default {
 }
 </script>
 
-<style scoped>
+<style >
 html, body { 
   height:100%; 
   margin:0;
@@ -111,6 +121,29 @@ html, body {
     display: flex;
     justify-content: center;
     align-content: center;
+}
+
+ .paginate-links{
+    width:100%;
+    list-style: none;
+    text-align: center;
+}
+
+.paginate-links li {
+    display: inline;
+    background-color: black;
+    color:white;
+    padding:0.5rem;
+    margin-left:0.3rem;
+    margin-right: 0.3rem;
+    cursor:pointer;
+    border-radius: 3px;
+}
+
+.paginate-result{
+    width: 100%;
+    text-align:center;
+    margin-bottom: 1rem;
 }
 
 </style>
