@@ -5,7 +5,10 @@
         <div class="container">
             <h3> <b>Te sigue: </b></h3>
             <br/>
-            <table class="table" v-if="noTieneSeguidores == false">
+        </div>
+        <div class="container" v-if="noTieneSeguidores == false">
+            <paginate ref="paginator" name = "listaSeguimientos" :list = "listaSeguimientos" :per = "2">
+            <table class="table">
                 <thead>
                     <tr>
                         <th scope="col" align="center">#</th>
@@ -13,7 +16,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    <tr v-for="(seguimiento, index) in listaSeguimientos" :key="index">
+                    <tr v-for="(seguimiento, index) in paginated('listaSeguimientos')" :key="index">
                         <td>{{index+1}}</td>
                         <td>{{seguimiento.seguidor}}</td>
                         <td align="right">
@@ -22,7 +25,17 @@
                     </tr>
                 </tbody>
             </table>
-            <div class="alert alert-danger" role="alert" v-else>
+            </paginate>
+                <paginate-links
+                    for="listaSeguimientos"
+                    :show-step-links="true"
+                    :simple="{
+                        prev: 'Anterior',next: 'Siguiente'  
+                    }">
+                </paginate-links>
+        </div>
+        <div class="container" v-else>
+            <div class="alert alert-danger" role="alert">
                 No te sigue nadie todavía
             </div>
         </div>
@@ -37,8 +50,9 @@ export default{
     name: "Seguidores",
     data: function(){
         return {
-            listaSeguimientos: null,
-            noTieneSeguidores: false
+            listaSeguimientos: [],
+            noTieneSeguidores: false,
+            paginate:['listaSeguimientos']
         }
     },
     components:{
@@ -93,5 +107,29 @@ export default{
 }
 </script>
 
-<style scoped>
+<style >
+
+ .paginate-links{
+    width:100%;
+    list-style: none;
+    text-align: center;
+}
+
+.paginate-links li {
+    display: inline;
+    background-color: black;
+    color:white;
+    padding:0.5rem;
+    margin-left:0.3rem;
+    margin-right: 0.3rem;
+    cursor:pointer;
+    border-radius: 3px;
+}
+
+.paginate-result{
+    width: 100%;
+    text-align:center;
+    margin-bottom: 1rem;
+}
+
 </style>
