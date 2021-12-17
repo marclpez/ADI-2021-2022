@@ -68,7 +68,9 @@ export default {
           this.$router.push('/')
       },
       detallesdelperfil(){
-          this.$router.push('/usuarios/' + this.$store.state.idUsuario)
+          if(this.$route.path !== '/usuarios/:id'){
+            this.$router.push('/usuarios/' + this.$store.state.idUsuario);
+          }
       },
       mostrarHome(){
           if(this.$route.path !== '/home'){

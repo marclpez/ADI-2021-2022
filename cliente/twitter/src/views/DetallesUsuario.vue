@@ -69,6 +69,16 @@ export default{
     components:{
         Header
     },
+    created() {
+        this.$watch(
+            () => this.$route.params,
+            (toParams, previousParams) => {
+                console.log(toParams);
+                console.log(previousParams);
+                location.reload()
+            }
+        )
+    },
     data: function(){
         return {
             listaTweets: null,
@@ -158,6 +168,7 @@ export default{
                     if(result.data.mensaje === 'Guardado el seguimiento'){
                         this.sigueAlUsuario = true;
                         this.idSeguimiento = result.data.seguimiento._id;
+                        this.seguidores++;
                     }
                 }).catch((err) => {
                     console.log(err)
@@ -170,6 +181,7 @@ export default{
                     if(result.data.mensaje === 'Seguimiento eliminado'){
                         this.sigueAlUsuario = false;
                         this.idSeguimiento = null;
+                        this.seguidores--;
                     }
                 }).catch((err) => {
                     console.log(err)

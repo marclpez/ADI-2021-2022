@@ -62,7 +62,7 @@ export default {
       .then(result => {
           console.log(result);
           if(result.data.mensaje == "Guardado el usuario"){
-            alert("Cuenta creada, pulsa OK para loguearte en la web");
+            alert("Cuenta creada, ya puedes loguearte y disfrutar de nuesta app");
             this.$router.push('/login');
           }
           else{

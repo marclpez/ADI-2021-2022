@@ -17,11 +17,15 @@
                         <td>{{index+1}}</td>
                         <td>{{seguidor}}</td>
                         <td align="right">
-                            <button type="button" class="btn btn-primary" style="margin-left: 10px" v-on:click="detallesUsuario(seguidor)">Visitar perfil</button>
+                            <button v-if="seguidor != usuarioLogueado" type="button" class="btn btn-primary" style="margin-left: 10px" v-on:click="detallesUsuario(seguidor)">Visitar perfil</button>
+                            <button v-else type="button" class="btn btn-primary" style="margin-left: 10px" v-on:click="detallesUsuario(seguidor)">Tu perfil</button>
                         </td>
                     </tr>
                 </tbody>
             </table>
+            <div class="alert alert-danger" role="alert" v-if="noTieneSeguidores">
+                No le sigue nadie todavía
+            </div>
             <h3> <b>Seguidos de {{nickname}}: </b></h3>
             <br/>
             <table class="table" v-if="!noSigueAnadie">
@@ -36,16 +40,14 @@
                         <td>{{index+1}}</td>
                         <td>{{seguido}}</td>
                         <td align="right">
-                            <button type="button" class="btn btn-primary" style="margin-left: 10px" v-on:click="detallesUsuario(seguido)">Visitar perfil</button>
+                            <button v-if="seguido != usuarioLogueado" type="button" class="btn btn-primary" style="margin-left: 10px" v-on:click="detallesUsuario(seguido)">Visitar perfil</button>
+                            <button v-else type="button" class="btn btn-primary" style="margin-left: 10px" v-on:click="detallesUsuario(seguido)">Tu perfil</button>
                         </td>
                     </tr>
                 </tbody>
             </table>
             <div class="alert alert-danger" role="alert" v-if="noSigueAnadie">
                 No sigue a nadie todavía
-            </div>
-            <div class="alert alert-danger" role="alert" v-if="noTieneSeguidores">
-                No le sigue nadie todavía
             </div>
         </div>
     </div>
@@ -59,6 +61,7 @@ export default{
     name: "infoSeguimientos",
     data: function(){
         return {
+            usuarioLogueado: this.$store.state.username,
             nickname: '',
             listaSeguidores: null,
             listaSeguidos: null,
