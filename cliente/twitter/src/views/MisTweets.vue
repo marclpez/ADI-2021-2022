@@ -60,7 +60,7 @@ export default{
     name: "Perfil", 
     data: function(){
         return {
-            listaTweets: null,
+            listaTweets: [],
             pagina: 1,
             totalTweets: 0,
             noTieneTweets: false,
