@@ -110,6 +110,20 @@ export default{
                             this.noTieneTweets = true;
                         }
                     }
+                    let direccion = "http://localhost:3000/twapi/usuarios/" + this.$store.state.idUsuario + "/tweets";
+                    axios.get(direccion)
+                        .then(result => {
+                            console.log(result)
+                            if(result.data.mensaje == 'Este usuario no tiene tweets'){
+                                this.noTieneTweets = true;
+                            }
+                            else{
+                                this.listaTweets = result.data.docs;
+                                this.totalTweets = result.data.totalDocs;
+                            }
+                        }).catch((err) => {
+                            console.log(err)
+                        })
                     
                 }).catch(err => {
                     console.log(err);
