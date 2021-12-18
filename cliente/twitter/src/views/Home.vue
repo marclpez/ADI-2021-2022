@@ -7,7 +7,7 @@
         </div>
         <br/>
         <div class="container">
-            <paginate ref="paginator" name = "listaTweets" :list = "listaTweets" :per = "2">
+            <paginate ref="paginator" name = "listaTweets" :list = "listaTweets" :per = "5">
             <table class="table">
                 <thead>
                     <tr>
