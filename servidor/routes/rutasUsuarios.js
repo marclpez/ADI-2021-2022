@@ -28,7 +28,7 @@ localStorage = new LocalStorage('./scratch');
 
 router.get('/', async function(req, res) {
     const options = {
-        limit: req.query.limit || 15,
+        limit: req.query.limit || 20,
         page: req.query.page || 1,
     }   
 
@@ -88,7 +88,7 @@ router.get('/nickname/:nickname', async function(req, res) {
 router.get('/:id/tweets', async function(req, res) {
     var usuarioBuscado;
     const options = {
-        limit: req.query.limit || 10,
+        limit: req.query.limit || 20,
         page: req.query.page || 1,
     }   
 
@@ -124,7 +124,7 @@ router.get('/:id/tweets', async function(req, res) {
 router.get('/:id/likes', async function(req, res){
     var usuarioBuscado;
     const options = {
-        limit: req.query.limit || 3,
+        limit: req.query.limit || 20,
         page: req.query.page || 1,
     }   
 
@@ -160,7 +160,7 @@ router.get('/:id/likes', async function(req, res){
 router.get('/:id/seguidores', async function(req, res) {
     var usuarioBuscado;
     const options = {
-        limit: req.query.limit || 10,
+        limit: req.query.limit || 20,
         page: req.query.page || 1,
     }
 
@@ -193,7 +193,7 @@ router.get('/:id/seguidores', async function(req, res) {
 router.get('/:id/seguidos', async function(req, res){ 
     var usuarioBuscado;
     const options = {
-        limit: req.query.limit || 10,
+        limit: req.query.limit || 20,
         page: req.query.page || 1,
     }
 

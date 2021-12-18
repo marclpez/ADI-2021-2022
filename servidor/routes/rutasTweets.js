@@ -16,7 +16,7 @@ localStorage = new LocalStorage('./scratch');
 router.get('/', async function(req, res) {
     //Si no le llega un valor desde la query pone el por defecto ||
     const options = {
-        limit: req.query.limit || 10,
+        limit: req.query.limit || 20,
         page: req.query.page || 1,
     }
 
@@ -68,7 +68,7 @@ router.get('/:id', async function(req, res) {
 router.get('/:id/likes', async function(req, res) {
     var tweetBuscado;
     const options = {
-        limit: req.query.limit || 10,
+        limit: req.query.limit || 20,
         page: req.query.page || 1,
     }
 

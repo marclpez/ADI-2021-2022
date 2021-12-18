@@ -17,7 +17,7 @@ localStorage = new LocalStorage('./scratch');
 router.get('/', auth.chequeaJWT, async function(req, res){
     var usuarioBuscado;
     const options = {
-        limit: req.query.limit || 5,
+        limit: req.query.limit || 20,
         page: req.query.page || 1,
     }
 
