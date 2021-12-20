@@ -15,13 +15,11 @@ const mongoose = require('./database');
 const rutasUsuarios = require('./routes/rutasUsuarios');
 const rutasTweets = require('./routes/rutasTweets');
 const rutasLikes = require('./routes/rutasLikes');
-const rutasMensajes = require('./routes/rutasMensajes');
 const rutasSeguimientos = require('./routes/rutasSeguimientos');
 
 app.use('/twapi/usuarios', rutasUsuarios);
 app.use('/twapi/tweets', rutasTweets);
 app.use('/twapi/likes', rutasLikes);
-app.use('/twapi/mensajes', rutasMensajes);
 app.use('/twapi/seguimientos', rutasSeguimientos);
 
 
